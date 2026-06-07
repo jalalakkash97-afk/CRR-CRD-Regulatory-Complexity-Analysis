@@ -144,6 +144,40 @@ for year in range(2013, 2014):
     # Kontrollausgabe: Anzahl der im CRR gefundenen Artikel.
     print("CRR-Artikel:", len(ParagraphList_CRR))
 
+    # Detailliertere Kontrollausgabe zur Plausibilitaet der Artikelerkennung im CRD.
+    if len(ParagraphList_CRD) > 0:
+        print("CRD erster Artikel:", ParagraphList_CRD[0], "| letzter Artikel:", ParagraphList_CRD[-1])
+    else:
+        print("CRD: Keine Artikel erkannt.")
+
+    # Detailliertere Kontrollausgabe zur Plausibilitaet der Artikelerkennung im CRR.
+    if len(ParagraphList_CRR) > 0:
+        print("CRR erster Artikel:", ParagraphList_CRR[0], "| letzter Artikel:", ParagraphList_CRR[-1])
+    else:
+        print("CRR: Keine Artikel erkannt.")
+
+    # Baut fuer die CRD eindeutige interne Knotennamen auf.
+    # Beispiel: Aus Artikel "4" wird der interne Name "CRD_4".
+    ParagraphList_CRD_Internal = ["CRD_" + artikel for artikel in ParagraphList_CRD]
+
+    # Baut fuer die CRR ebenfalls eindeutige interne Knotennamen auf.
+    # Beispiel: Aus Artikel "4" wird der interne Name "CRR_4".
+    ParagraphList_CRR_Internal = ["CRR_" + artikel for artikel in ParagraphList_CRR]
+
+    # Erzeugt die gemeinsame interne Artikelliste fuer das Gesamtsystem aus CRD und CRR.
+    # Diese Liste soll spaeter die Grundlage fuer die Berechnung bilden, damit Verweise
+    # zwischen beiden Rechtsakten als interne Verweise behandelt werden koennen.
+    ParagraphList_All = ParagraphList_CRD_Internal + ParagraphList_CRR_Internal
+
+    # Kontrollausgabe: Anzahl aller internen Knoten im gemeinsamen CRD/CRR-System.
+    print("Interne Artikel gesamt (CRD + CRR):", len(ParagraphList_All))
+
+    # Zusätzliche Plausibilitaetsausgabe: zeigt die ersten internen Knotennamen je Rechtsakt.
+    if len(ParagraphList_CRD_Internal) > 0:
+        print("Erster interner CRD-Knoten:", ParagraphList_CRD_Internal[0])
+    if len(ParagraphList_CRR_Internal) > 0:
+        print("Erster interner CRR-Knoten:", ParagraphList_CRR_Internal[0])
+
     # Zwischenschritt:
     # Die nachfolgende Verweislogik arbeitet vorerst noch mit den bisherigen Namen
     # und nur auf dem CRD-Text. Bis die Verweislogik ebenfalls umgestellt ist,
