@@ -21,7 +21,6 @@ from compute_complexity import compute_complexity
 from clumb_analysis import clumb_analysis
 from compute_statistics import compute_statistics
 from write_output import write_output
-print ("hallo Welt")
 
 
 
