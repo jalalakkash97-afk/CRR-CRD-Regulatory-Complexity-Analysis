@@ -31,9 +31,23 @@ from write_output import write_output
 
 #######################################################################################################################
 for year in range(2013, 2014):
-    file_name = "C:/Users/jalal/OneDrive/Desktop/MASTERARBEIT/Texte/txt/CELEX_32013L0036_EN_TXT.txt"
-    print(file_name) 
-    CFR_Text = load_text(file_name)
+    crd_file_name = "C:/Users/jalal/OneDrive/Desktop/MASTERARBEIT/Texte/txt/CELEX_32013L0036_EN_TXT.txt"
+    crr_file_name = f"C:/Users/jalal/OneDrive/Desktop/MASTERARBEIT/Texte/CRR_Texte/CRR_{year}.txt"
+
+    print("CRD-Datei:", crd_file_name)
+    print("CRR-Datei:", crr_file_name)
+
+    CRD_Text = load_text(crd_file_name)
+    CRR_Text = load_text(crr_file_name)
+
+    print("CRD-Textlaenge:", len(CRD_Text))
+    print("CRR-Textlaenge:", len(CRR_Text))
+
+    # Zwischenschritt:
+    # Der restliche Code arbeitet vorerst noch mit dem bisherigen Variablennamen.
+    # Bis die nachfolgenden Bloecke ebenfalls umgestellt sind, bleibt CFR_Text daher
+    # bewusst auf den CRD-Text gesetzt.
+    CFR_Text = CRD_Text
     #print("Textlänge:", len(CFR_Text))
     #print("Erste 300 Zeichen:\n")
     #print(CFR_Text[:300])
