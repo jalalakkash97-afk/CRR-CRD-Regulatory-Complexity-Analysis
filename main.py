@@ -31,16 +31,24 @@ from write_output import write_output
 
 #######################################################################################################################
 for year in range(2013, 2014):
+    # Pfad zur CRD-Datei fuer das betrachtete Jahr.
     crd_file_name = "C:/Users/jalal/OneDrive/Desktop/MASTERARBEIT/Texte/txt/CELEX_32013L0036_EN_TXT.txt"
+    # Pfad zur CRR-Datei fuer dasselbe Jahr.
     crr_file_name = f"C:/Users/jalal/OneDrive/Desktop/MASTERARBEIT/Texte/CRR_Texte/CRR_{year}.txt"
 
+    # Kontrollausgabe: zeigt, welche CRD-Datei geladen werden soll.
     print("CRD-Datei:", crd_file_name)
+    # Kontrollausgabe: zeigt, welche CRR-Datei geladen werden soll.
     print("CRR-Datei:", crr_file_name)
 
+    # Liest den kompletten CRD-Text als String ein.
     CRD_Text = load_text(crd_file_name)
+    # Liest den kompletten CRR-Text als String ein.
     CRR_Text = load_text(crr_file_name)
 
+    # Kontrollausgabe zur Plausibilitaet: Laenge des eingelesenen CRD-Texts.
     print("CRD-Textlaenge:", len(CRD_Text))
+    # Kontrollausgabe zur Plausibilitaet: Laenge des eingelesenen CRR-Texts.
     print("CRR-Textlaenge:", len(CRR_Text))
 
     # Zwischenschritt:
@@ -60,56 +68,92 @@ for year in range(2013, 2014):
     ##################################################################
 
 
-    PositionsParagraph = []
-    EndParagraph = []
-    ParagraphList = []
+    # Importiert regulaere Ausdruecke; damit koennen Artikelueberschriften per Muster erkannt werden.
     import re
-    # CRD: Artikelüberschriften erkennen, z.B.:
-    # "\nArticle 1\n"
-    # "\n Article 1\n"
-    # "\n   Article 1\n"
-    pattern = r"\n[ ]{0,3}Article\s+(\d+)\n" #\n bedeutet Zeilenumbruch, [ ]{0,3} bedeutet 0 bis 3 Leerzeichen,
-                                             #Article\s+(\d+) bedeutet das Wort Article gefolgt von einem oder mehreren Leerzeichen und dann einer oder mehreren Ziffern
-                                             #die in Klammern gespeichert werden (\d+),
-                                             #\n am Ende bedeutet dass der Artikelname mit einem Zeilenumbruch endet.
 
-    matches = list(re.finditer(pattern, CFR_Text)) # die Lsit-funktion erstellt eine Liste aller gefunden treffer im gesamten Text.
-                                                    # somt sind matches eine Lister aller gefunden treffer 
+    # Hilfsfunktion zur Erkennung aller Artikel in einem EU-Rechtstext.
+    # Die Funktion arbeitet sowohl fuer den CRD- als auch fuer den CRR-Text.
+    def erkenne_artikel_im_eu_text(text):
+        # Speichert die Startposition jedes gefundenen Artikels im Gesamttext.
+        positions = []
+        # Speichert die Endposition jedes gefundenen Artikels im Gesamttext.
+        ends = []
+        # Speichert die Artikelnummern als Namen der Knoten, z.B. "1", "2", "3".
+        artikel_liste = []
 
-    #print("Gefundene Artikel (roh):", len(matches))
+        # Echte Artikelüberschriften erkennen, z.B.:
+        # "\nArticle 1\n"
+        # "\n Article 1\n"
+        # "\n   Article 1\n"
+        # Das Muster sucht daher:
+        # - einen Zeilenumbruch,
+        # - optional bis zu drei Leerzeichen,
+        # - das Wort "Article",
+        # - mindestens ein Leerzeichen,
+        # - eine oder mehrere Ziffern als Artikelnummer,
+        # - und danach wieder einen Zeilenumbruch.
+        pattern = r"\n[ ]{0,3}Article\s+(\d+)\n"
+        # Sucht alle passenden Artikelueberschriften im uebergebenen Text.
+        matches = list(re.finditer(pattern, text))
 
-    for i in range(len(matches)):
+        # Geht alle gefundenen Artikelueberschriften nacheinander durch.
+        for i in range(len(matches)):
+            # Speichert die Artikelnummer des aktuellen Treffers.
+            artikel_liste.append(matches[i].group(1))
+            # Speichert die Startposition des aktuellen Artikels.
+            artikelfang = matches[i].start()
 
-        # Nummer des aktuellen Artikels, analog zur ParagraphList im Originalcode.
-        ParagraphList.append(matches[i].group(1))
-
-        # Beginn des aktuellen Artikels
-        parabegin = matches[i].start()
-
-        # Ende des aktuellen Artikels
-        if i < len(matches) - 1:
-            paraend = matches[i + 1].start()
-        else:
-            # Begrenzung des letzten Artikels:
-            # Nach Article 165 folgen noch Annex und Schlussformeln.
-            possible_ends = []
-
-            for marker in ["\nANNEX I", "\nANNEX", "\nDone at Brussels"]:
-                pos = CFR_Text.find(marker, parabegin)
-                if pos != -1 and pos > parabegin:
-                    possible_ends.append(pos)
-
-            if len(possible_ends) > 0:
-                paraend = min(possible_ends)
+            # Wenn noch ein weiterer Artikel folgt, endet der aktuelle Artikel direkt vor dem naechsten.
+            if i < len(matches) - 1:
+                artikelende = matches[i + 1].start()
             else:
-                paraend = len(CFR_Text)
+                # Letzten Artikel vor Anhängen oder Schlussformeln begrenzen.
+                # Diese Marker liegen typischerweise nach dem eigentlichen Rechtstext.
+                possible_ends = []
+                # Prueft mehrere moegliche Endmarker, damit die Logik sowohl bei CRD als auch bei CRR robust bleibt.
+                for marker in ["\nANNEX I", "\nANNEX", "\nDone at Brussels"]:
+                    # Sucht den Marker erst ab dem Beginn des letzten Artikels.
+                    pos = text.find(marker, artikelfang)
+                    # Nur Treffer hinter dem Artikelanfang sind als Artikelende relevant.
+                    if pos != -1 and pos > artikelfang:
+                        # Speichert alle gueltigen Endkandidaten.
+                        possible_ends.append(pos)
 
-        PositionsParagraph.append(parabegin)
-        EndParagraph.append(paraend)
+                # Wenn ein Endmarker gefunden wurde, wird der frueheste davon als Artikelende verwendet.
+                if len(possible_ends) > 0:
+                    artikelende = min(possible_ends)
+                else:
+                    # Falls kein Endmarker gefunden wird, laeuft der letzte Artikel bis zum Textende.
+                    artikelende = len(text)
 
-    #print("Anzahl Artikel:", len(ParagraphList))
-    #print("Erster Artikel:", ParagraphList[0])
-    #print("Letzter Artikel:", ParagraphList[-1])
+            # Fuegt die Startposition des aktuellen Artikels der Positionsliste hinzu.
+            positions.append(artikelfang)
+            # Fuegt die Endposition des aktuellen Artikels der Endliste hinzu.
+            ends.append(artikelende)
+
+        # Gibt fuer den uebergebenen Text alle Startpositionen, Endpositionen und Artikelnamen zurueck.
+        return positions, ends, artikel_liste
+
+    # Erkennt alle Artikel im CRD-Text und speichert Positionen, Enden und Artikelnamen getrennt.
+    PositionsParagraph_CRD, EndParagraph_CRD, ParagraphList_CRD = erkenne_artikel_im_eu_text(CRD_Text)
+    # Erkennt alle Artikel im CRR-Text und speichert Positionen, Enden und Artikelnamen getrennt.
+    PositionsParagraph_CRR, EndParagraph_CRR, ParagraphList_CRR = erkenne_artikel_im_eu_text(CRR_Text)
+
+    # Kontrollausgabe: Anzahl der im CRD gefundenen Artikel.
+    print("CRD-Artikel:", len(ParagraphList_CRD))
+    # Kontrollausgabe: Anzahl der im CRR gefundenen Artikel.
+    print("CRR-Artikel:", len(ParagraphList_CRR))
+
+    # Zwischenschritt:
+    # Die nachfolgende Verweislogik arbeitet vorerst noch mit den bisherigen Namen
+    # und nur auf dem CRD-Text. Bis die Verweislogik ebenfalls umgestellt ist,
+    # bleiben die Legacy-Variablen auf die CRD-Listen gesetzt.
+    # Legacy-Name fuer die nachfolgende alte Verweislogik: aktuell noch nur die CRD-Artikel.
+    PositionsParagraph = PositionsParagraph_CRD
+    # Legacy-Endpositionen fuer die nachfolgende alte Verweislogik: aktuell noch nur die CRD-Artikel.
+    EndParagraph = EndParagraph_CRD
+    # Legacy-Artikelliste fuer die nachfolgende alte Verweislogik: aktuell noch nur die CRD-Artikel.
+    ParagraphList = ParagraphList_CRD
  
     ##################################################################
     ################# 3) Verweise in jedem Paragraph identifizieren ##
