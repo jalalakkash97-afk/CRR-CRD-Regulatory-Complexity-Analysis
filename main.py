@@ -99,7 +99,7 @@ for year in range(2013, 2014):
         # Geht alle gefundenen Artikelueberschriften nacheinander durch.
         for i in range(len(matches)):
             # Speichert die Artikelnummer des aktuellen Treffers.
-            artikel_liste.append(matches[i].group(1))
+            artikel_liste.append(matches[i].group(1))    # Gruppe 1 ist der Inhalt der ersten Kammer im Pattern 
             # Speichert die Startposition des aktuellen Artikels.
             artikelfang = matches[i].start()
 

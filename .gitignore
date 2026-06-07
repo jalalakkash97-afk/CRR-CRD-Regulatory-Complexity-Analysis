@@ -1,0 +1,15 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Editor temporary files
+*.swp
+*.swo
+*.tmp
+
+# VS Code metadata
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
