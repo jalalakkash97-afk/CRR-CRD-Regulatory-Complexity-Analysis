@@ -202,6 +202,16 @@ for year in range(2013, 2014):
             break
 
     print("")
+    print("Erste CRD -> CRR Treffer:")
+    printed = 0
+    for i in range(len(ParagraphList_CRD)):
+        if len(ParagraphVerweise_CRD_anderer_Rechtsakt[i]) > 0:
+            print(CRD_artikel[i], "->", ParagraphVerweise_CRD_anderer_Rechtsakt[i])
+            printed += 1
+        if printed == 15:
+            break
+
+    print("")
     print("Erste CRR-Treffer fuer Berechnung:")
     printed = 0
     for i in range(len(CRR_artikel)):
@@ -212,10 +222,19 @@ for year in range(2013, 2014):
         if printed == 15:
             break
 
+    print("")
+    print("Erste CRR -> CRD Treffer:")
+    printed = 0
+    for i in range(len(ParagraphList_CRR)):
+        if len(ParagraphVerweise_CRR_anderer_Rechtsakt[i]) > 0:
+            print(CRR_artikel[i], "->", ParagraphVerweise_CRR_anderer_Rechtsakt[i])
+            printed += 1
+        if printed == 15:
+            break
+
 
     # 4)Mehrfachverweise 
     
     
-
 
 
