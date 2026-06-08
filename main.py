@@ -130,10 +130,6 @@ for year in range(2013, 2014):
     counter_multi_ref = 0
     counter_non_identified_ref2 = 0
 
-    # Schreibweisen fuer einfache Einzelverweise.
-    # In diesem ersten Schritt suchen wir nur nach Singularformen wie "Article 30".
-    ParagraphSignArray = ["Article"]
-
     # Geht durch alle gefundenen Artikel.
     for counter in range(len(PositionsParagraph)):
 
@@ -152,31 +148,29 @@ for year in range(2013, 2014):
         # CRR-Verweise des aktuellen Artikels.
         CRRVerweise = []
 
-        # Geht durch alle Suchsignale fuer einfache Artikelverweise.
-        for index_i in range(len(ParagraphSignArray)):
+        # Sucht einfache Artikelverweise im aktuellen Artikel.
+        # Im aktuellen Zwischenstand wird die Funktion weiterhin nur fuer den
+        # CRD-Text aufgerufen. current_act wird deshalb zunaechst fest auf
+        # "CRD" gesetzt. Die getrennte Behandlung von CRD und CRR im main.py
+        # folgt in einem spaeteren Schritt.
+        verweise, externe_verweise, crr_verweise = einzelverweise_crd(
+            CFR_Text,
+            parabegin,
+            paraend,
+            ParagraphList[counter],
+            "CRD",
+            ParagraphList_CRD,
+            ParagraphList_CRR
+        )
 
-            # Aktuelles Suchsignal, hier erstmal nur "Article".
-            ParagraphSign = ParagraphSignArray[index_i]
+        # Fuegt interne Einzelverweise zur Verweisliste des aktuellen Artikels hinzu.
+        Verweise += verweise
 
-            # Sucht einfache Artikelverweise im aktuellen Artikel.
-            # Die Funktion gibt interne und externe Verweise getrennt zurueck.
-            verweise, externe_verweise, crr_verweise = einzelverweise_crd(
-                ParagraphSign,
-                parabegin,
-                paraend,
-                CFR_Text,
-                ParagraphList,
-                ParagraphList[counter]
-            )
+        # Fuegt externe Einzelverweise zur externen Verweisliste hinzu.
+        ExterneVerweise += externe_verweise
 
-            # Fuegt interne Einzelverweise zur Verweisliste des aktuellen Artikels hinzu.
-            Verweise += verweise
-
-            # Fuegt externe Einzelverweise zur externen Verweisliste hinzu.
-            ExterneVerweise += externe_verweise
-
-            # Fuegt CRR-Einzelverweise zur CRR-Verweisliste hinzu.
-            CRRVerweise += crr_verweise
+        # Fuegt CRR-Einzelverweise zur CRR-Verweisliste hinzu.
+        CRRVerweise += crr_verweise
 
         # Entfernt doppelte interne Verweise, behaelt aber die erste Fundreihenfolge bei.
         Verweise_clean = []

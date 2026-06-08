@@ -91,57 +91,13 @@ def ist_crr_artikelverweis(CFR_Text, match_start, match_end, paraend):
     return False
 
 
-# Prueft, ob ein Verweis explizit auf die CRD zeigt.
-# Gemeint ist hier vor allem die Richtlinie 2013/36/EU.
-def ist_crd_artikelverweis(CFR_Text, match_start, match_end, paraend):
-
-    # Schneidet ein Textfenster direkt nach dem gefundenen Article-Verweis aus.
-    context_after = CFR_Text[match_end:min(match_end + 160, paraend)]
-
-    # Vereinheitlicht Gross-/Kleinschreibung.
-    context_after_lower = context_after.lower()
-
-    # Direkter CRD-Hinweis: Directive 2013/36/EU.
-    if "2013/36/eu" in context_after_lower and "directive" in context_after_lower:
-
-        # Gibt True zurueck, wenn der Treffer explizit auf die CRD zeigt.
-        return True
-
-    # Andernfalls liegt kein ausdruecklicher CRD-Hinweis vor.
-    return False
-
-
-# Prueft, ob direkt nach dem Artikel auf denselben Rechtsakt verwiesen wird.
-# Beispiele:
-# - "Article 115 of this Regulation" im CRR
-# - "Article 74 of this Directive" im CRD
-def ist_verweis_auf_denselben_rechtsakt(CFR_Text, match_end, paraend, current_act):
-
-    # Schneidet ein kurzes Textfenster direkt nach dem gefundenen Verweis aus.
-    context_after = CFR_Text[match_end:min(match_end + 120, paraend)]
-
-    # Vereinheitlicht Gross-/Kleinschreibung und entfernt fuehrende Leerzeichen.
-    context_after_clean = context_after.lower().lstrip()
-
-    # Im CRR wird derselbe Rechtsakt typischerweise als "this Regulation" bezeichnet.
-    if current_act == "CRR" and context_after_clean.startswith("of this regulation"):
-
-        # Gibt True zurueck: interner CRR-Verweis.
-        return True
-
-    # In der CRD wird derselbe Rechtsakt typischerweise als "this Directive" bezeichnet.
-    if current_act == "CRD" and context_after_clean.startswith("of this directive"):
-
-        # Gibt True zurueck: interner CRD-Verweis.
-        return True
-
-    # In allen anderen Faellen liegt kein ausdruecklicher Gleich-Rechtsakt-Hinweis vor.
-    return False
 
 
 # Definiert die eigentliche Funktion zur Suche einfacher Artikelverweise.
-# Die neuen Parameter werden zunaechst optional gehalten, damit der bisherige
-# Aufruf aus main.py vorerst weiter funktioniert.
+# Die Funktion arbeitet kuenftig nicht mehr mit einem frei uebergebenen
+# ParagraphSign, sondern fest mit dem Suchwort "Article". Das passt zur
+# aktuellen Zielstruktur, weil CRD und CRR beide auf Artikelebene untersucht
+# werden.
 #
 # current_act:
 #   Kennzeichnet den Quellrechtsakt des aktuell bearbeiteten Artikels
@@ -152,30 +108,14 @@ def ist_verweis_auf_denselben_rechtsakt(CFR_Text, match_end, paraend, current_ac
 #   benoetigt, um gefundene Verweise sauber als CRD-, CRR- oder externe
 #   Verweise einzuordnen.
 def einzelverweise_crd(
-    ParagraphSign,
+    text,
     parabegin,
     paraend,
-    CFR_Text,
-    ParagraphList,
-    current_paragraph,
-    current_act=None,
-    ParagraphList_CRD=None,
-    ParagraphList_CRR=None,
+    current_article,
+    current_act,
+    ParagraphList_CRD,
+    ParagraphList_CRR,
 ):
-
-    # Uebergangsregel:
-    # Solange main.py noch nicht beide Rechtsakte getrennt an die Funktion uebergibt,
-    # wird ohne explizite Angabe weiter vom bisherigen CRD-Fall ausgegangen.
-    if current_act is None:
-        current_act = "CRD"
-
-    # Falls die beiden Artikellisten noch nicht separat uebergeben wurden,
-    # wird fuer den Uebergangsstand die bisherige ParagraphList als Liste des
-    # aktuellen Rechtsakts verwendet. Dadurch bleibt der bisherige CRD-Lauf intakt.
-    if ParagraphList_CRD is None and current_act == "CRD":
-        ParagraphList_CRD = ParagraphList
-    if ParagraphList_CRR is None and current_act == "CRR":
-        ParagraphList_CRR = ParagraphList
 
     # Neue Ergebnislisten fuer die kuenftige Zielstruktur.
     # Sie werden in diesem Zwischenschritt bereits angelegt, auch wenn die
@@ -212,22 +152,20 @@ def einzelverweise_crd(
     CRREinzelverweise = Verweise_anderer_Rechtsakt
 
     # Baut ein Suchmuster fuer einfache Artikelverweise.
-    # Beispiel: ParagraphSign = "Article" erkennt "Article 30" und "Article 30(2)".
-    # "\b" Wortgrenze: sorgt dafür, dass Artikel als einzelwort erkannt wird und nicht mitten im Wort iwo 
-    # re.escape sorgt dafür,dass Sondernzeichen als Sonderzeichen erkannt werden im Regex und nicht anders interpritiert( für Artokel ist es überflüssig) 
-    #\S+ ein oder mehrere Leezeichen nach dem Wortartikel oder andere zwischen räume
-    #\d+  bedeutet eine Ziffer oder mehrere Ziffern () speichern dann diese Ziffer ist wichtig für die Artikel nummer
-    #(?:\([^)]+\)) erlaube danch die Klammerangaben aber speicht die nihct als eignes ergebnis
-    # ?:  bedeutet gruppe nicht speichern.
-    # * null mal einmal oder mehrmal
-    pattern = r"\b" + re.escape(ParagraphSign) + r"\s+(\d+)(?:\([^)]+\))*"
+    # Gesucht werden Formen wie:
+    # - "Article 30"
+    # - "Article 30(2)"
+    # - "Article 30(2)(a)"
+    #
+    # Auf Artikelebene wird spaeter nur die reine Artikelnummer uebernommen.
+    pattern = r"\bArticle\s+(\d+)(?:\([^)]+\))*"
 
     # Sucht alle Treffer des Musters im aktuellen Artikelbereich.
     # Für jeden Treffer, den Regex im Text findet, nenne diesen Treffer kurz MATCH und führe den eingerückten Code aus.
     # Group 0 ist der gesamte gefundene Text, also z.B. "Article 30(2)". Group 1 ist die erste  Klammer im regex Muster(\d+), also die reine Artikelnummer "30". 
     # group 2 wäre die zweite Klammer, also die Klammerangabe"(2)", aber die speichern wir ja nicht als eigenständigen Verweis, sondern nur die Artikelnummer.
     # 
-    for match in re.finditer(pattern, CFR_Text[parabegin:paraend]):
+    for match in re.finditer(pattern, text[parabegin:paraend]):
 
         # Holt die gefundene Artikelnummer aus der ersten Klammer des Suchmusters.
         verweis = match.group(1)
@@ -236,130 +174,44 @@ def einzelverweise_crd(
         match_start = parabegin + match.start()
         match_end = parabegin + match.end()
 
-        # Speichert jeden erkannten Einzelverweis zunaechst in der Gesamtliste.
-        # Die eigentliche Klassifikation folgt erst in den naechsten Pruefschritten.
-        Verweise_gesamt.append(verweis)
-
         # Eigenverweise werden nicht gezaehlt.
-        if verweis == current_paragraph:
+        if verweis == current_article:
 
             # Springt zum naechsten Treffer.
             continue
 
-        # Ab hier wird aktabhaengig klassifiziert.
-        # Die Logik unterscheidet bewusst zwischen CRD- und CRR-Artikeln,
-        # weil der Standardfall ohne Marker jeweils anders zu deuten ist.
+        # Externe Artikelverweise, z. B. auf eine Regulation oder Directive, werden nicht uebernommen.
+        if ist_externer_artikelverweis(text, match_start, match_end, paraend):
 
-        # Fall A: aktueller Artikel stammt aus der CRD.
+            # Speichert den externen Artikelverweis separat fuer spaetere Auswertungen.
+            ExterneEinzelverweise.append(verweis)
+            Verweise_gesamt.append(verweis)
+
+            # Prueft, ob der externe Verweis speziell auf die CRR zeigt.
+            if ist_crr_artikelverweis(text, match_start, match_end, paraend):
+
+                # Speichert CRR-Verweise separat fuer die spaetere Anzahl der CRR-Verweisungen.
+                CRREinzelverweise.append(verweis)
+
+            # Springt zum naechsten Treffer, weil externe Verweise nicht in ParagraphVerweise sollen.
+            continue
+
+        # Verweise auf Artikel, die nicht in ParagraphList vorkommen, werden nicht als interne Verweise uebernommen.
         if current_act == "CRD":
+            gueltige_artikel = ParagraphList_CRD
+        else:
+            gueltige_artikel = ParagraphList_CRR
 
-            # Expliziter Verweis von CRD auf die CRR.
-            if ist_crr_artikelverweis(CFR_Text, match_start, match_end, paraend):
+        if verweis not in gueltige_artikel:
 
-                # Nur Artikel uebernehmen, die in der CRR-Artikelliste vorkommen.
-                if ParagraphList_CRR is not None and verweis in ParagraphList_CRR:
-
-                    ziel = "CRR_" + verweis
-
-                    # Fuer die Berechnung zaehlt der Verweis als interner Verweis
-                    # im gemeinsamen System CRD + CRR.
-                    Verweise_Berechnung.append(ziel)
-
-                    # Fuer die Statistik wird er als Verweis auf den anderen Rechtsakt erfasst.
-                    Verweise_anderer_Rechtsakt.append(ziel)
-
-                # Geht danach direkt zum naechsten Treffer.
-                continue
-
-            # Explizite Verweise auf andere Rechtsakte bleiben extern.
-            if ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
-
-                # Speichert den Treffer als externen Verweis.
-                Verweise_extern.append(verweis)
-                continue
-
-            # "of this Directive" bestaetigt einen internen CRD-Verweis.
-            if ist_verweis_auf_denselben_rechtsakt(CFR_Text, match_end, paraend, current_act):
-
-                if ParagraphList_CRD is not None and verweis in ParagraphList_CRD:
-
-                    ziel = "CRD_" + verweis
-                    Verweise_Berechnung.append(ziel)
-                    Verweise_gleicher_Rechtsakt.append(ziel)
-
-                continue
-
-            # Standardfall ohne Marker:
-            # Im CRD wird der Treffer als interner CRD-Verweis behandelt,
-            # sofern die Artikelnummer in der CRD-Artikelliste vorkommt.
-            if ParagraphList_CRD is not None and verweis in ParagraphList_CRD:
-
-                ziel = "CRD_" + verweis
-                Verweise_Berechnung.append(ziel)
-                Verweise_gleicher_Rechtsakt.append(ziel)
-
-                continue
-
-            # Falls der Treffer weder intern zugeordnet noch explizit als CRR-Verweis
-            # erkannt wurde, bleibt er fuer den Moment extern.
-            Verweise_extern.append(verweis)
+            # Springt zum naechsten Treffer.
             continue
 
-        # Fall B: aktueller Artikel stammt aus dem CRR.
-        if current_act == "CRR":
-
-            # Expliziter Verweis von CRR auf die CRD.
-            if ist_crd_artikelverweis(CFR_Text, match_start, match_end, paraend):
-
-                # Nur Artikel uebernehmen, die in der CRD-Artikelliste vorkommen.
-                if ParagraphList_CRD is not None and verweis in ParagraphList_CRD:
-
-                    ziel = "CRD_" + verweis
-                    Verweise_Berechnung.append(ziel)
-                    Verweise_anderer_Rechtsakt.append(ziel)
-
-                continue
-
-            # Explizite Verweise auf andere Rechtsakte bleiben extern.
-            if ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
-
-                Verweise_extern.append(verweis)
-                continue
-
-            # "of this Regulation" bestaetigt einen internen CRR-Verweis.
-            if ist_verweis_auf_denselben_rechtsakt(CFR_Text, match_end, paraend, current_act):
-
-                if ParagraphList_CRR is not None and verweis in ParagraphList_CRR:
-
-                    ziel = "CRR_" + verweis
-                    Verweise_Berechnung.append(ziel)
-                    Verweise_gleicher_Rechtsakt.append(ziel)
-
-                continue
-
-            # Standardfall ohne Marker:
-            # Im CRR wird der Treffer als interner CRR-Verweis behandelt,
-            # sofern die Artikelnummer in der CRR-Artikelliste vorkommt.
-            if ParagraphList_CRR is not None and verweis in ParagraphList_CRR:
-
-                ziel = "CRR_" + verweis
-                Verweise_Berechnung.append(ziel)
-                Verweise_gleicher_Rechtsakt.append(ziel)
-
-                continue
-
-            # Alles, was danach noch uebrig bleibt, wird vorerst extern erfasst.
-            Verweise_extern.append(verweis)
-            continue
+        # Wenn der Treffer intern ist, wird er in die Ergebnisliste aufgenommen.
+        Einzelverweise.append(verweis)
+        Verweise_gleicher_Rechtsakt.append(verweis)
+        Verweise_gesamt.append(verweis)
 
     # Gibt interne, externe und davon CRR-bezogene Einzelverweise getrennt an main.py zurueck.
-    #
-    # Uebergangsstand:
-    # main.py erwartet aktuell noch drei Rueckgabewerte. Deshalb werden hier
-    # vorerst die entsprechenden Teilmengen der neuen Struktur zurueckgegeben:
-    #
-    # - Einzelverweise            -> interne Verweise fuer die Berechnung
-    # - ExterneEinzelverweise     -> externe Verweise
-    # - CRREinzelverweise         -> Verweise auf den jeweils anderen internen Rechtsakt
     return Einzelverweise, ExterneEinzelverweise, CRREinzelverweise
 
