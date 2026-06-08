@@ -103,26 +103,34 @@ for year in range(2013, 2014):
 
     print("Artikel gesamt (CRD + CRR):", len(ParagraphList_All))
 
-    PositionsParagraph = PositionsParagraph_CRD
-    EndParagraph = EndParagraph_CRD
-    ParagraphList = ParagraphList_CRD
- 
     ##################################################################
     ################# 3) Verweise in jedem Paragraph identifizieren ##
     ##################################################################
 
-    # Ergebnisliste fuer interne Artikelverweise.
-    # Jede Position entspricht einem Artikel aus ParagraphList.
+    # Gemeinsame Ergebnisliste fuer die spaetere Berechnung.
+    # Die Reihenfolge soll spaeter zu ParagraphList_All passen:
+    # zuerst alle CRD-Artikel, danach alle CRR-Artikel.
     ParagraphVerweise = []
 
-    # Zusaetzliche Ergebnisliste fuer externe Artikelverweise.
-    # Diese Liste wird nicht fuer die interne Komplexitaetsberechnung verwendet,
-    # ist aber wichtig fuer spaetere Statistiken und Dokumentation.
-    ParagraphExternalVerweise = []
+    # Getrennte Statistiklisten fuer den CRD.
+    ParagraphVerweise_CRD_gleicher_Rechtsakt = []
+    ParagraphVerweise_CRD_anderer_Rechtsakt = []
+    ParagraphVerweise_CRD_extern = []
+    ParagraphVerweise_CRD_gesamt = []
 
-    # Zusaetzliche Ergebnisliste fuer externe Artikelverweise auf die CRR.
-    # Gemeint ist Regulation (EU) No 575/2013.
-    ParagraphCRRVerweise = []
+    # Getrennte Statistiklisten fuer den CRR.
+    ParagraphVerweise_CRR_gleicher_Rechtsakt = []
+    ParagraphVerweise_CRR_anderer_Rechtsakt = []
+    ParagraphVerweise_CRR_extern = []
+    ParagraphVerweise_CRR_gesamt = []
+
+    # Hilfsfunktion: entfernt doppelte Eintraege, behaelt aber die erste Fundreihenfolge bei.
+    def unique_list(values):
+        values_clean = []
+        for value in values:
+            if value not in values_clean:
+                values_clean.append(value)
+        return values_clean
 
     # Diese Zaehler bleiben aus der Originalstruktur erhalten.
     # Fuer einfache Einzelverweise werden sie noch nicht gebraucht.
@@ -130,117 +138,106 @@ for year in range(2013, 2014):
     counter_multi_ref = 0
     counter_non_identified_ref2 = 0
 
-    # Geht durch alle gefundenen Artikel.
-    for counter in range(len(PositionsParagraph)):
+    # ---------- CRD: Einzelverweise erkennen ----------
+    for counter in range(len(PositionsParagraph_CRD)):
 
-        # Beginn des aktuellen Artikels.
-        parabegin = PositionsParagraph[counter]
+        parabegin = PositionsParagraph_CRD[counter]
+        paraend = EndParagraph_CRD[counter]
+        current_article = ParagraphList_CRD[counter]
 
-        # Ende des aktuellen Artikels.
-        paraend = EndParagraph[counter]
-
-        # Interne Verweise des aktuellen Artikels.
-        Verweise = []
-
-        # Externe Verweise des aktuellen Artikels.
-        ExterneVerweise = []
-
-        # CRR-Verweise des aktuellen Artikels.
-        CRRVerweise = []
-
-        # Sucht einfache Artikelverweise im aktuellen Artikel.
-        # Im aktuellen Zwischenstand wird die Funktion weiterhin nur fuer den
-        # CRD-Text aufgerufen. current_act wird deshalb zunaechst fest auf
-        # "CRD" gesetzt. Die getrennte Behandlung von CRD und CRR im main.py
-        # folgt in einem spaeteren Schritt.
-        verweise, externe_verweise, crr_verweise = einzelverweise_crd(
-            CFR_Text,
+        (
+            Verweise_Berechnung,
+            Verweise_gleicher_Rechtsakt,
+            Verweise_anderer_Rechtsakt,
+            Verweise_extern,
+            Verweise_gesamt,
+        ) = einzelverweise_crd(
+            CRD_Text,
             parabegin,
             paraend,
-            ParagraphList[counter],
+            current_article,
             "CRD",
             ParagraphList_CRD,
-            ParagraphList_CRR
+            ParagraphList_CRR,
         )
 
-        # Fuegt interne Einzelverweise zur Verweisliste des aktuellen Artikels hinzu.
-        Verweise += verweise
+        ParagraphVerweise.append(unique_list(Verweise_Berechnung))
+        ParagraphVerweise_CRD_gleicher_Rechtsakt.append(unique_list(Verweise_gleicher_Rechtsakt))
+        ParagraphVerweise_CRD_anderer_Rechtsakt.append(unique_list(Verweise_anderer_Rechtsakt))
+        ParagraphVerweise_CRD_extern.append(unique_list(Verweise_extern))
+        ParagraphVerweise_CRD_gesamt.append(unique_list(Verweise_gesamt))
 
-        # Fuegt externe Einzelverweise zur externen Verweisliste hinzu.
-        ExterneVerweise += externe_verweise
+    # ---------- CRR: Einzelverweise erkennen ----------
+    for counter in range(len(PositionsParagraph_CRR)):
 
-        # Fuegt CRR-Einzelverweise zur CRR-Verweisliste hinzu.
-        CRRVerweise += crr_verweise
+        parabegin = PositionsParagraph_CRR[counter]
+        paraend = EndParagraph_CRR[counter]
+        current_article = ParagraphList_CRR[counter]
 
-        # Entfernt doppelte interne Verweise, behaelt aber die erste Fundreihenfolge bei.
-        Verweise_clean = []
-        for v in Verweise:
-            if v not in Verweise_clean:
-                Verweise_clean.append(v)
+        (
+            Verweise_Berechnung,
+            Verweise_gleicher_Rechtsakt,
+            Verweise_anderer_Rechtsakt,
+            Verweise_extern,
+            Verweise_gesamt,
+        ) = einzelverweise_crd(
+            CRR_Text,
+            parabegin,
+            paraend,
+            current_article,
+            "CRR",
+            ParagraphList_CRD,
+            ParagraphList_CRR,
+        )
 
-        # Speichert die internen Verweise fuer den aktuellen Artikel.
-        ParagraphVerweise.append(Verweise_clean)
+        ParagraphVerweise.append(unique_list(Verweise_Berechnung))
+        ParagraphVerweise_CRR_gleicher_Rechtsakt.append(unique_list(Verweise_gleicher_Rechtsakt))
+        ParagraphVerweise_CRR_anderer_Rechtsakt.append(unique_list(Verweise_anderer_Rechtsakt))
+        ParagraphVerweise_CRR_extern.append(unique_list(Verweise_extern))
+        ParagraphVerweise_CRR_gesamt.append(unique_list(Verweise_gesamt))
 
-        # Entfernt doppelte externe Verweise, behaelt aber die erste Fundreihenfolge bei.
-        ExterneVerweise_clean = []
-        for v in ExterneVerweise:
-            if v not in ExterneVerweise_clean:
-                ExterneVerweise_clean.append(v)
+    # Gemeinsame Knotenliste fuer den Einzelverweis-Stand.
+    ParagraphList = ParagraphList_All
 
-        # Speichert die externen Verweise fuer den aktuellen Artikel separat.
-        ParagraphExternalVerweise.append(ExterneVerweise_clean)
-
-        # Entfernt doppelte CRR-Verweise, behaelt aber die erste Fundreihenfolge bei.
-        CRRVerweise_clean = []
-        for v in CRRVerweise:
-            if v not in CRRVerweise_clean:
-                CRRVerweise_clean.append(v)
-
-        # Speichert die CRR-Verweise fuer den aktuellen Artikel separat.
-        ParagraphCRRVerweise.append(CRRVerweise_clean) 
-    
-   
-    # Kontrollausgaben fuer den aktuellen Anpassungsschritt.
-    print("Anzahl Artikel:", len(ParagraphList))
-    print("Anzahl interne Verweislisten:", len(ParagraphVerweise))
-    print("Anzahl externe Verweislisten:", len(ParagraphExternalVerweise))
-    print("Anzahl CRR-Verweislisten:", len(ParagraphCRRVerweise))
-    print("Interne Einzelverweise insgesamt:", sum([len(x) for x in ParagraphVerweise]))
-    print("Externe Einzelverweise insgesamt:", sum([len(x) for x in ParagraphExternalVerweise]))
-    print("CRR-Einzelverweise insgesamt:", sum([len(x) for x in ParagraphCRRVerweise]))
-    print("Artikel mit internen Einzelverweisen:", sum([len(x) > 0 for x in ParagraphVerweise]))
-    print("Artikel mit externen Einzelverweisen:", sum([len(x) > 0 for x in ParagraphExternalVerweise]))
-    print("Artikel mit CRR-Einzelverweisen:", sum([len(x) > 0 for x in ParagraphCRRVerweise]))
+    # Kontrollausgaben fuer den aktuellen Einzelverweis-Stand.
+    print("")
+    print("Einzelverweise CRD")
+    print("CRD -> CRD:", sum([len(x) for x in ParagraphVerweise_CRD_gleicher_Rechtsakt]))
+    print("CRD -> CRR:", sum([len(x) for x in ParagraphVerweise_CRD_anderer_Rechtsakt]))
+    print("CRD -> extern:", sum([len(x) for x in ParagraphVerweise_CRD_extern]))
+    print("CRD gesamt:", sum([len(x) for x in ParagraphVerweise_CRD_gesamt]))
 
     print("")
-    print("Erste interne Treffer:")
+    print("Einzelverweise CRR")
+    print("CRR -> CRR:", sum([len(x) for x in ParagraphVerweise_CRR_gleicher_Rechtsakt]))
+    print("CRR -> CRD:", sum([len(x) for x in ParagraphVerweise_CRR_anderer_Rechtsakt]))
+    print("CRR -> extern:", sum([len(x) for x in ParagraphVerweise_CRR_extern]))
+    print("CRR gesamt:", sum([len(x) for x in ParagraphVerweise_CRR_gesamt]))
+
+    print("")
+    print("Berechnungslisten gesamt:", len(ParagraphVerweise))
+    print("Interne Verweise fuer Berechnung gesamt:", sum([len(x) for x in ParagraphVerweise]))
+
+    print("")
+    print("Erste CRD-Treffer fuer Berechnung:")
     printed = 0
-    for i in range(len(ParagraphList)):
+    for i in range(len(CRD_artikel)):
         if len(ParagraphVerweise[i]) > 0:
-            print("Artikel", ParagraphList[i], "->", ParagraphVerweise[i])
+            print(CRD_artikel[i], "->", ParagraphVerweise[i])
             printed += 1
         if printed == 15:
             break
 
     print("")
-    print("Erste externe Treffer:")
+    print("Erste CRR-Treffer fuer Berechnung:")
     printed = 0
-    for i in range(len(ParagraphList)):
-        if len(ParagraphExternalVerweise[i]) > 0:
-            print("Artikel", ParagraphList[i], "->", ParagraphExternalVerweise[i])
+    for i in range(len(CRR_artikel)):
+        index_gesamt = len(CRD_artikel) + i
+        if len(ParagraphVerweise[index_gesamt]) > 0:
+            print(CRR_artikel[i], "->", ParagraphVerweise[index_gesamt])
             printed += 1
         if printed == 15:
             break
-
-    print("")
-    print("Erste CRR-Treffer:")
-    printed = 0
-    for i in range(len(ParagraphList)):
-        if len(ParagraphCRRVerweise[i]) > 0:
-            print("Artikel", ParagraphList[i], "->", ParagraphCRRVerweise[i])
-            printed += 1
-        if printed == 15: 
-            break 
 
 
     # 4)Mehrfachverweise 
