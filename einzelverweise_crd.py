@@ -178,6 +178,16 @@ def _fuege_internen_verweis_hinzu(
         Verweise_anderer_Rechtsakt.append(ziel)
 
 
+def _unique_list(values):
+    """Entfernt doppelte Eintraege, behaelt aber die erste Fundreihenfolge bei."""
+
+    values_clean = []
+    for value in values:
+        if value not in values_clean:
+            values_clean.append(value)
+    return values_clean
+
+
 def einzelverweise_crd(
     text,
     parabegin,
@@ -434,4 +444,57 @@ def einzelverweise_crd(
         Verweise_anderer_Rechtsakt,
         Verweise_extern,
         Verweise_gesamt,
+    )
+
+
+def sammle_einzelverweise_fuer_rechtsakt(
+    text,
+    positions_paragraph,
+    end_paragraph,
+    paragraph_list,
+    current_act,
+    ParagraphList_CRD,
+    ParagraphList_CRR,
+):
+    """Fuehrt die Einzelverweiserkennung fuer einen kompletten Rechtsakt aus."""
+
+    verweise_berechnung_alle = []
+    verweise_gleicher_rechtsakt_alle = []
+    verweise_anderer_rechtsakt_alle = []
+    verweise_extern_alle = []
+    verweise_gesamt_alle = []
+
+    for counter in range(len(positions_paragraph)):
+        parabegin = positions_paragraph[counter]
+        paraend = end_paragraph[counter]
+        current_article = paragraph_list[counter]
+
+        (
+            Verweise_Berechnung,
+            Verweise_gleicher_Rechtsakt,
+            Verweise_anderer_Rechtsakt,
+            Verweise_extern,
+            Verweise_gesamt,
+        ) = einzelverweise_crd(
+            text,
+            parabegin,
+            paraend,
+            current_article,
+            current_act,
+            ParagraphList_CRD,
+            ParagraphList_CRR,
+        )
+
+        verweise_berechnung_alle.append(_unique_list(Verweise_Berechnung))
+        verweise_gleicher_rechtsakt_alle.append(_unique_list(Verweise_gleicher_Rechtsakt))
+        verweise_anderer_rechtsakt_alle.append(_unique_list(Verweise_anderer_Rechtsakt))
+        verweise_extern_alle.append(_unique_list(Verweise_extern))
+        verweise_gesamt_alle.append(_unique_list(Verweise_gesamt))
+
+    return (
+        verweise_berechnung_alle,
+        verweise_gleicher_rechtsakt_alle,
+        verweise_anderer_rechtsakt_alle,
+        verweise_extern_alle,
+        verweise_gesamt_alle,
     )
