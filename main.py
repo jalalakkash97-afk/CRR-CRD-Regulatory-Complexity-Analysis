@@ -132,6 +132,56 @@ for year in range(2013, 2014):
                 values_clean.append(value)
         return values_clean
 
+    # Hilfsfunktion: fuehrt die Einzelverweiserkennung fuer einen Rechtsakt durch.
+    # Dadurch bleibt der Hauptblock unten kuerzer und CRD/CRR werden einheitlich behandelt.
+    def sammle_einzelverweise_fuer_rechtsakt(
+        text,
+        positions_paragraph,
+        end_paragraph,
+        paragraph_list,
+        current_act,
+    ):
+        verweise_berechnung_alle = []
+        verweise_gleicher_rechtsakt_alle = []
+        verweise_anderer_rechtsakt_alle = []
+        verweise_extern_alle = []
+        verweise_gesamt_alle = []
+
+        for counter in range(len(positions_paragraph)):
+            parabegin = positions_paragraph[counter]
+            paraend = end_paragraph[counter]
+            current_article = paragraph_list[counter]
+
+            (
+                Verweise_Berechnung,
+                Verweise_gleicher_Rechtsakt,
+                Verweise_anderer_Rechtsakt,
+                Verweise_extern,
+                Verweise_gesamt,
+            ) = einzelverweise_crd(
+                text,
+                parabegin,
+                paraend,
+                current_article,
+                current_act,
+                ParagraphList_CRD,
+                ParagraphList_CRR,
+            )
+
+            verweise_berechnung_alle.append(unique_list(Verweise_Berechnung))
+            verweise_gleicher_rechtsakt_alle.append(unique_list(Verweise_gleicher_Rechtsakt))
+            verweise_anderer_rechtsakt_alle.append(unique_list(Verweise_anderer_Rechtsakt))
+            verweise_extern_alle.append(unique_list(Verweise_extern))
+            verweise_gesamt_alle.append(unique_list(Verweise_gesamt))
+
+        return (
+            verweise_berechnung_alle,
+            verweise_gleicher_rechtsakt_alle,
+            verweise_anderer_rechtsakt_alle,
+            verweise_extern_alle,
+            verweise_gesamt_alle,
+        )
+
     # Diese Zaehler bleiben aus der Originalstruktur erhalten.
     # Fuer einfache Einzelverweise werden sie noch nicht gebraucht.
     counter_non_identified_ref = 0
@@ -139,62 +189,39 @@ for year in range(2013, 2014):
     counter_non_identified_ref2 = 0
 
     # ---------- CRD: Einzelverweise erkennen ----------
-    for counter in range(len(PositionsParagraph_CRD)):
-
-        parabegin = PositionsParagraph_CRD[counter]
-        paraend = EndParagraph_CRD[counter]
-        current_article = ParagraphList_CRD[counter]
-
-        (
-            Verweise_Berechnung,
-            Verweise_gleicher_Rechtsakt,
-            Verweise_anderer_Rechtsakt,
-            Verweise_extern,
-            Verweise_gesamt,
-        ) = einzelverweise_crd(
-            CRD_Text,
-            parabegin,
-            paraend,
-            current_article,
-            "CRD",
-            ParagraphList_CRD,
-            ParagraphList_CRR,
-        )
-
-        ParagraphVerweise.append(unique_list(Verweise_Berechnung))
-        ParagraphVerweise_CRD_gleicher_Rechtsakt.append(unique_list(Verweise_gleicher_Rechtsakt))
-        ParagraphVerweise_CRD_anderer_Rechtsakt.append(unique_list(Verweise_anderer_Rechtsakt))
-        ParagraphVerweise_CRD_extern.append(unique_list(Verweise_extern))
-        ParagraphVerweise_CRD_gesamt.append(unique_list(Verweise_gesamt))
+    (
+        ParagraphVerweise_CRD_berechnung,
+        ParagraphVerweise_CRD_gleicher_Rechtsakt,
+        ParagraphVerweise_CRD_anderer_Rechtsakt,
+        ParagraphVerweise_CRD_extern,
+        ParagraphVerweise_CRD_gesamt,
+    ) = sammle_einzelverweise_fuer_rechtsakt(
+        CRD_Text,
+        PositionsParagraph_CRD,
+        EndParagraph_CRD,
+        ParagraphList_CRD,
+        "CRD",
+    )
 
     # ---------- CRR: Einzelverweise erkennen ----------
-    for counter in range(len(PositionsParagraph_CRR)):
+    (
+        ParagraphVerweise_CRR_berechnung,
+        ParagraphVerweise_CRR_gleicher_Rechtsakt,
+        ParagraphVerweise_CRR_anderer_Rechtsakt,
+        ParagraphVerweise_CRR_extern,
+        ParagraphVerweise_CRR_gesamt,
+    ) = sammle_einzelverweise_fuer_rechtsakt(
+        CRR_Text,
+        PositionsParagraph_CRR,
+        EndParagraph_CRR,
+        ParagraphList_CRR,
+        "CRR",
+    )
 
-        parabegin = PositionsParagraph_CRR[counter]
-        paraend = EndParagraph_CRR[counter]
-        current_article = ParagraphList_CRR[counter]
-
-        (
-            Verweise_Berechnung,
-            Verweise_gleicher_Rechtsakt,
-            Verweise_anderer_Rechtsakt,
-            Verweise_extern,
-            Verweise_gesamt,
-        ) = einzelverweise_crd(
-            CRR_Text,
-            parabegin,
-            paraend,
-            current_article,
-            "CRR",
-            ParagraphList_CRD,
-            ParagraphList_CRR,
-        )
-
-        ParagraphVerweise.append(unique_list(Verweise_Berechnung))
-        ParagraphVerweise_CRR_gleicher_Rechtsakt.append(unique_list(Verweise_gleicher_Rechtsakt))
-        ParagraphVerweise_CRR_anderer_Rechtsakt.append(unique_list(Verweise_anderer_Rechtsakt))
-        ParagraphVerweise_CRR_extern.append(unique_list(Verweise_extern))
-        ParagraphVerweise_CRR_gesamt.append(unique_list(Verweise_gesamt))
+    # Gemeinsame Verweisliste fuer die spaetere Berechnung.
+    # Die Reihenfolge muss zu ParagraphList_All passen:
+    # zuerst CRD, danach CRR.
+    ParagraphVerweise = ParagraphVerweise_CRD_berechnung + ParagraphVerweise_CRR_berechnung
 
     # Gemeinsame Knotenliste fuer den Einzelverweis-Stand.
     ParagraphList = ParagraphList_All
