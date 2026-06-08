@@ -30,6 +30,12 @@ def _text_nach_treffer(text, match_end, paraend, max_len=160):
     return text[match_end:min(match_end + max_len, paraend)]
 
 
+def _text_vor_treffer(text, match_start, max_len=260):
+    """Liest ein kurzes Textfenster direkt vor dem gefundenen Artikelverweis aus."""
+
+    return text[max(0, match_start - max_len):match_start]
+
+
 def _baue_externen_treffer(text, match_start, paraend, max_len=120):
     """Baut fuer externe Verweise einen lesbaren Treffertext.
 
@@ -53,6 +59,23 @@ def _ist_expliziter_crd_verweis(context_after_lower):
     return "2013/36/eu" in context_after_lower and "directive" in context_after_lower
 
 
+def _ist_expliziter_selbstverweis(context_after_lower, current_act):
+    """Prueft auf explizite Verweise auf den Eigenrechtsakt.
+
+    Beispiele:
+    - im CRD:  "Article X of Directive 2013/36/EU"
+    - im CRR:  "Article X of Regulation (EU) No 575/2013"
+    """
+
+    if current_act == "CRD":
+        return "2013/36/eu" in context_after_lower and "directive" in context_after_lower
+
+    if current_act == "CRR":
+        return "575/2013" in context_after_lower and "regulation" in context_after_lower
+
+    return False
+
+
 def _ist_expliziter_verweis_auf_denselben_rechtsakt(context_after_lower, current_act):
     """Prueft auf 'of this Directive' bzw. 'of this Regulation'."""
 
@@ -65,6 +88,49 @@ def _ist_expliziter_verweis_auf_denselben_rechtsakt(context_after_lower, current
         return context_after_clean.startswith("of this regulation")
 
     return False
+
+
+def _klassifiziere_that_verweis(context_before_lower, context_after_lower, current_act):
+    """Ordnet 'of that Regulation' bzw. 'of that Directive' anhand des Vorkontexts zu.
+
+    Rueckgabewerte:
+    - "gleicher_rechtsakt"
+    - "anderer_rechtsakt"
+    - "extern"
+    - None, wenn kein 'that'-Fall vorliegt oder keine sichere Zuordnung moeglich ist
+    """
+
+    context_after_clean = context_after_lower.lstrip()
+
+    # Fall 1: "of that Regulation"
+    if context_after_clean.startswith("of that regulation"):
+        # Im CRD ist die relevante interne Regulation die CRR.
+        if current_act == "CRD" and "575/2013" in context_before_lower and "regulation" in context_before_lower:
+            return "anderer_rechtsakt"
+
+        # Im CRR ist die relevante eigene Regulation die CRR selbst.
+        if current_act == "CRR" and "575/2013" in context_before_lower and "regulation" in context_before_lower:
+            return "gleicher_rechtsakt"
+
+        # Sonstige Regulationen bleiben extern.
+        if "regulation" in context_before_lower:
+            return "extern"
+
+    # Fall 2: "of that Directive"
+    if context_after_clean.startswith("of that directive"):
+        # Im CRD ist die relevante eigene Directive die CRD selbst.
+        if current_act == "CRD" and "2013/36/eu" in context_before_lower and "directive" in context_before_lower:
+            return "gleicher_rechtsakt"
+
+        # Im CRR ist die relevante interne Directive die CRD.
+        if current_act == "CRR" and "2013/36/eu" in context_before_lower and "directive" in context_before_lower:
+            return "anderer_rechtsakt"
+
+        # Sonstige Directives bleiben extern.
+        if "directive" in context_before_lower:
+            return "extern"
+
+    return None
 
 
 def _hat_externen_marker(context_after_lower):
@@ -123,16 +189,17 @@ def einzelverweise_crd(
 ):
     """Erkennt Einzelverweise im aktuellen Artikel.
 
-    Rueckgabe im aktuellen Zwischenstand:
+    Rueckgabe:
     1. Verweise_Berechnung
        Alle internen Verweise im System CRD + CRR.
-    2. Verweise_extern
-       Externe Verweise als lesbare Textfragmente.
+    2. Verweise_gleicher_Rechtsakt
+       Verweise auf den gleichen Rechtsakt.
     3. Verweise_anderer_Rechtsakt
-       Interne Verweise auf den jeweils anderen Rechtsakt.
-
-    Die Listen Verweise_gleicher_Rechtsakt und Verweise_gesamt werden intern
-    bereits mitgefuehrt und koennen spaeter leicht an main.py angebunden werden.
+       Verweise auf den jeweils anderen internen Rechtsakt.
+    4. Verweise_extern
+       Externe Verweise als lesbare Textfragmente.
+    5. Verweise_gesamt
+       Alle erkannten Einzelverweise des aktuellen Artikels.
     """
 
     if current_act not in ("CRD", "CRR"):
@@ -164,6 +231,8 @@ def einzelverweise_crd(
 
         context_after = _text_nach_treffer(text, match_end, paraend)
         context_after_lower = context_after.lower()
+        context_before = _text_vor_treffer(text, match_start)
+        context_before_lower = context_before.lower()
 
         # 1. Expliziter Rechtsaktwechsel: CRD -> CRR
         if current_act == "CRD" and _ist_expliziter_crr_verweis(context_after_lower):
@@ -193,7 +262,37 @@ def einzelverweise_crd(
                 )
             continue
 
-        # 3. Expliziter Verweis auf denselben Rechtsakt
+        # 3. Expliziter Verweis auf denselben Rechtsakt durch ausgeschriebenen Eigenrechtsakt
+        if _ist_expliziter_selbstverweis(context_after_lower, current_act):
+            if current_act == "CRD":
+                if verweis_nummer == current_article:
+                    continue
+                if verweis_nummer in ParagraphList_CRD:
+                    ziel = "CRD_" + verweis_nummer
+                    _fuege_internen_verweis_hinzu(
+                        ziel,
+                        Verweise_Berechnung,
+                        Verweise_gleicher_Rechtsakt,
+                        Verweise_anderer_Rechtsakt,
+                        Verweise_gesamt,
+                        gleicher_rechtsakt=True,
+                    )
+            else:
+                if verweis_nummer == current_article:
+                    continue
+                if verweis_nummer in ParagraphList_CRR:
+                    ziel = "CRR_" + verweis_nummer
+                    _fuege_internen_verweis_hinzu(
+                        ziel,
+                        Verweise_Berechnung,
+                        Verweise_gleicher_Rechtsakt,
+                        Verweise_anderer_Rechtsakt,
+                        Verweise_gesamt,
+                        gleicher_rechtsakt=True,
+                    )
+            continue
+
+        # 4. Expliziter Verweis auf denselben Rechtsakt
         if _ist_expliziter_verweis_auf_denselben_rechtsakt(context_after_lower, current_act):
             if current_act == "CRD":
                 if verweis_nummer == current_article:
@@ -223,13 +322,81 @@ def einzelverweise_crd(
                     )
             continue
 
-        # 4. Klar externer Verweis auf einen anderen Rechtsakt
-        if _hat_externen_marker(context_after_lower):
-            Verweise_extern.append(_baue_externen_treffer(text, match_start, paraend))
-            Verweise_gesamt.append(_baue_externen_treffer(text, match_start, paraend))
+        # 5. 'of that Regulation' / 'of that Directive' mit einfacher Kontextzuordnung
+        that_klassifikation = _klassifiziere_that_verweis(
+            context_before_lower,
+            context_after_lower,
+            current_act,
+        )
+
+        if that_klassifikation == "gleicher_rechtsakt":
+            if current_act == "CRD":
+                if verweis_nummer == current_article:
+                    continue
+                if verweis_nummer in ParagraphList_CRD:
+                    ziel = "CRD_" + verweis_nummer
+                    _fuege_internen_verweis_hinzu(
+                        ziel,
+                        Verweise_Berechnung,
+                        Verweise_gleicher_Rechtsakt,
+                        Verweise_anderer_Rechtsakt,
+                        Verweise_gesamt,
+                        gleicher_rechtsakt=True,
+                    )
+            else:
+                if verweis_nummer == current_article:
+                    continue
+                if verweis_nummer in ParagraphList_CRR:
+                    ziel = "CRR_" + verweis_nummer
+                    _fuege_internen_verweis_hinzu(
+                        ziel,
+                        Verweise_Berechnung,
+                        Verweise_gleicher_Rechtsakt,
+                        Verweise_anderer_Rechtsakt,
+                        Verweise_gesamt,
+                        gleicher_rechtsakt=True,
+                    )
             continue
 
-        # 5. Standardfall ohne Marker:
+        if that_klassifikation == "anderer_rechtsakt":
+            if current_act == "CRD":
+                if verweis_nummer in ParagraphList_CRR:
+                    ziel = "CRR_" + verweis_nummer
+                    _fuege_internen_verweis_hinzu(
+                        ziel,
+                        Verweise_Berechnung,
+                        Verweise_gleicher_Rechtsakt,
+                        Verweise_anderer_Rechtsakt,
+                        Verweise_gesamt,
+                        gleicher_rechtsakt=False,
+                    )
+            else:
+                if verweis_nummer in ParagraphList_CRD:
+                    ziel = "CRD_" + verweis_nummer
+                    _fuege_internen_verweis_hinzu(
+                        ziel,
+                        Verweise_Berechnung,
+                        Verweise_gleicher_Rechtsakt,
+                        Verweise_anderer_Rechtsakt,
+                        Verweise_gesamt,
+                        gleicher_rechtsakt=False,
+                    )
+            continue
+
+        if that_klassifikation == "extern":
+            externer_treffer = _baue_externen_treffer(text, match_start, paraend)
+            Verweise_extern.append(externer_treffer)
+            Verweise_gesamt.append(externer_treffer)
+            continue
+
+        # 6. Klar externer Verweis auf einen anderen Rechtsakt
+        if _hat_externen_marker(context_after_lower):
+            externer_treffer = _baue_externen_treffer(text, match_start, paraend)
+            Verweise_extern.append(externer_treffer)
+            Verweise_gesamt.append(externer_treffer)
+            continue
+
+        # 7. Standardfall ohne Marker:
         # "Article X" wird als interner Verweis im aktuellen Rechtsakt behandelt.
         if current_act == "CRD":
             if verweis_nummer == current_article:
@@ -261,4 +428,10 @@ def einzelverweise_crd(
                 )
             continue
 
-    return Verweise_Berechnung, Verweise_extern, Verweise_anderer_Rechtsakt
+    return (
+        Verweise_Berechnung,
+        Verweise_gleicher_Rechtsakt,
+        Verweise_anderer_Rechtsakt,
+        Verweise_extern,
+        Verweise_gesamt,
+    )
