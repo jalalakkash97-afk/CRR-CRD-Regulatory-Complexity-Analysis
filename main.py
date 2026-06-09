@@ -8,6 +8,8 @@ from einzelverweise_crd import einzelverweise_crd
 from einzelverweise_crr import einzelverweise_crr
 from paragraph_begin_end import paragraphenbeginend
 from mehrfachverweise import mehrfachverweise
+from mehrfachverweise_crd import mehrfachverweise_crd
+from mehrfachverweise_crr import mehrfachverweise_crr
 from index_verweis import index_verweise
 
 from load_operators import load_operators
@@ -260,6 +262,27 @@ for year in range(2013, 2014):
             # Fuegt CRR-Einzelverweise zur CRR-Verweisliste hinzu.
             CRRVerweise += crr_verweise
 
+        # Sucht Mehrfachverweise wie "Articles 10 to 14" im aktuellen CRD-Artikel.
+        verweise, externe_verweise, crr_verweise, counter_multi_ref, counter_non_identified_ref, counter_non_identified_ref2 = mehrfachverweise_crd(
+            parabegin,
+            paraend,
+            counter_multi_ref,
+            counter_non_identified_ref,
+            counter_non_identified_ref2,
+            CRD_Text,
+            ParagraphList_CRD,
+            ParagraphList_CRD[counter]
+        )
+
+        # Fuegt interne CRD-Mehrfachverweise zur Verweisliste hinzu.
+        Verweise += verweise
+
+        # Fuegt externe Mehrfachverweise zur externen Verweisliste hinzu.
+        ExterneVerweise += externe_verweise
+
+        # Fuegt CRR-Mehrfachverweise zur CRR-Verweisliste hinzu.
+        CRRVerweise += crr_verweise
+
         # Entfernt doppelte interne Verweise, behaelt aber die erste Fundreihenfolge bei.
         Verweise_clean = []
         for v in Verweise:
@@ -329,6 +352,27 @@ for year in range(2013, 2014):
 
             # Fuegt CRD-Einzelverweise zur CRD-Verweisliste hinzu.
             CRDVerweise += crd_verweise
+
+        # Sucht Mehrfachverweise wie "Articles 32 to 35" im aktuellen CRR-Artikel.
+        verweise, externe_verweise, crd_verweise, counter_multi_ref, counter_non_identified_ref, counter_non_identified_ref2 = mehrfachverweise_crr(
+            parabegin,
+            paraend,
+            counter_multi_ref,
+            counter_non_identified_ref,
+            counter_non_identified_ref2,
+            CRR_Text,
+            ParagraphList_CRR,
+            ParagraphList_CRR[counter]
+        )
+
+        # Fuegt interne CRR-Mehrfachverweise zur Verweisliste hinzu.
+        Verweise += verweise
+
+        # Fuegt externe Mehrfachverweise zur externen Verweisliste hinzu.
+        ExterneVerweise += externe_verweise
+
+        # Fuegt CRD-Mehrfachverweise zur CRD-Verweisliste hinzu.
+        CRDVerweise += crd_verweise
 
         # Entfernt doppelte interne CRR-Verweise, behaelt aber die erste Fundreihenfolge bei.
         Verweise_clean = []
