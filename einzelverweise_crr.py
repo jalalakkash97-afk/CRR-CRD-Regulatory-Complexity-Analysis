@@ -9,6 +9,22 @@ Mehrfachverweise wie "Articles 74 and 75" werden spaeter separat behandelt.
 import re
 
 
+# Normalisiert kurze Textausschnitte, damit Zeilenumbrueche und Sonderleerzeichen nicht stoeren.
+def normalisiere_kontext(text):
+
+    # Macht aus Zeilenumbruechen normale Leerzeichen.
+    text = text.replace("\n", " ")
+
+    # Entfernt Leerzeichen direkt nach einem Schraegstrich.
+    text = re.sub(r"/\s+", "/", text)
+
+    # Fasst mehrere Leerzeichen zu einem Leerzeichen zusammen.
+    text = " ".join(text.split())
+
+    # Gibt den vereinheitlichten Text in Kleinschreibung zurueck.
+    return text.lower()
+
+
 # Definiert eine Hilfsfunktion, die prueft, ob ein gefundener Article-Verweis extern ist.
 def ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
 
@@ -18,12 +34,9 @@ def ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
     # Schneidet ein Textfenster vor dem gefundenen Verweis aus.
     context_before = CFR_Text[max(0, match_start - 240):match_start]
 
-    # Vereinheitlicht Gross-/Kleinschreibung, damit die Suche stabiler ist.
-    context_after_lower = context_after.lower()
-    context_before_lower = context_before.lower()
-
-    # Entfernt fuehrende Leerzeichen nach dem gefundenen Article-Verweis.
-    context_after_clean = context_after_lower.lstrip()
+    # Vereinheitlicht den Text, damit Zeilenumbrueche und Sonderleerzeichen nicht stoeren.
+    context_after_clean = normalisiere_kontext(context_after)
+    context_before_lower = normalisiere_kontext(context_before)
 
     # Definiert starke Hinweise darauf, dass der Artikel zu einem anderen Rechtsakt gehoert.
     external_markers = [
@@ -42,6 +55,22 @@ def ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
 
             # Gibt True zurueck: Der Treffer soll nicht als interner CRR-Verweis zaehlen.
             return True
+
+    # Erkennt externe Verweise, bei denen zwischen "of" und dem Rechtsakttyp noch Zusatzwoerter stehen.
+    # Beispiele:
+    # Article 17 of Fourth Council Directive 78/660/EEC
+    # Article 42 of Regulation (EU) No 648/2012
+    if re.match(r"^of .{0,80}\b(regulation|directive|decision)\b", context_after_clean):
+
+        # Gibt True zurueck: Der Treffer verweist auf einen anderen Rechtsakt.
+        return True
+
+    # Erkennt externe Verweise mit Untergliederungen zwischen Artikelnummer und Rechtsakt.
+    # Beispiel: Article 2(1) (b) of Directive ...
+    if re.match(r"^(?:\([^)]+\)\s*)+of .{0,80}\b(regulation|directive|decision)\b", context_after_clean):
+
+        # Gibt True zurueck: Der Treffer verweist auf einen anderen Rechtsakt.
+        return True
 
     # Erkennt Rueckverweise wie "of that Directive".
     # Das ist extern, wenn kurz vorher bereits eine Directive genannt wurde.
@@ -70,26 +99,23 @@ def ist_crd_artikelverweis(CFR_Text, match_start, match_end, paraend):
     # Schneidet ein Textfenster vor dem gefundenen Article-Verweis aus.
     context_before = CFR_Text[max(0, match_start - 240):match_start]
 
-    # Vereinheitlicht Gross-/Kleinschreibung fuer stabile Suche.
-    context_after_lower = context_after.lower()
-    context_before_lower = context_before.lower()
-
-    # Entfernt fuehrende Leerzeichen nach dem gefundenen Article-Verweis.
-    context_after_clean = context_after_lower.lstrip()
+    # Vereinheitlicht die Textfenster fuer stabile Suche.
+    context_after_clean = normalisiere_kontext(context_after)
+    context_before_clean = normalisiere_kontext(context_before)
 
     # Entfernt Leerzeichen, damit auch Schreibweisen wie "2013/ 36/EU" erkannt werden.
-    context_after_compact = context_after_lower.replace(" ", "")
-    context_before_compact = context_before_lower.replace(" ", "")
+    context_after_compact = context_after_clean.replace(" ", "")
+    context_before_compact = context_before_clean.replace(" ", "")
 
     # Prueft auf die direkte CRD-Kennung: Directive 2013/36/EU.
-    if "2013/36/eu" in context_after_compact and "directive" in context_after_lower:
+    if "2013/36/eu" in context_after_compact and "directive" in context_after_clean:
 
         # Gibt True zurueck, wenn der externe Artikelverweis auf die CRD zeigt.
         return True
 
     # Prueft Rueckverweise wie "Article 94(1) of that Directive".
     # Sie zaehlen als CRD-Verweis, wenn kurz vorher Directive 2013/36/EU genannt wurde.
-    if context_after_clean.startswith("of that directive") and "2013/36/eu" in context_before_compact and "directive" in context_before_lower:
+    if context_after_clean.startswith("of that directive") and "2013/36/eu" in context_before_compact and "directive" in context_before_clean:
 
         # Gibt True zurueck, weil "that Directive" hier auf die CRD zurueckverweist.
         return True

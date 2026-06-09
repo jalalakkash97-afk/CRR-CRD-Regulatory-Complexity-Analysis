@@ -60,6 +60,20 @@ def ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
             # Gibt True zurueck: Der Treffer soll nicht als interner CRD-Verweis zaehlen.
             return True
 
+    # Erkennt externe Verweise mit Untergliederungen zwischen Artikelnummer und Rechtsakt.
+    # Beispiel: Article 2(1) (b) of Directive 2009/65/EC
+    if re.match(r"^(?:\([^)]+\)\s*)+of (regulation|directive|decision|delegated regulation|implementing regulation)", context_after_clean):
+
+        # Gibt True zurueck, weil der Treffer auf einen anderen Rechtsakt verweist.
+        return True
+
+    # Erkennt externe Bereichsangaben mit Untergliederungen vor dem Rechtsakt.
+    # Beispiel: Article 26(1)(a) to (e) of Regulation ...
+    if re.match(r"^to\s+(?:\([^)]+\)\s*)+of (regulation|directive|decision|delegated regulation|implementing regulation)", context_after_clean):
+
+        # Gibt True zurueck, weil der Treffer auf einen anderen Rechtsakt verweist.
+        return True
+
     # Erkennt Rueckverweise wie "of that Regulation".
     # Das ist extern, wenn kurz vorher bereits eine Regulation genannt wurde.
     if context_after_clean.startswith("of that regulation") and "regulation" in context_before_lower:
@@ -93,6 +107,9 @@ def ist_crr_artikelverweis(CFR_Text, match_start, match_end, paraend):
         context_after_clean.startswith("of regulation")
         or context_after_clean.startswith("of the regulation")
         or re.match(r"^\(\d+\) of regulation", context_after_clean)
+        or re.match(r"^(?:\([^)]+\)\s*)+(?:to\s+(?:\([^)]+\)\s*)+)?of regulation", context_after_clean)
+        or re.match(r"^to\s+(?:\([^)]+\)\s*)+of regulation", context_after_clean)
+        or re.match(r"^and\s+(?:\([^)]+\)\s*)+of regulation", context_after_clean)
     ) and "575/2013" in context_after_clean:
 
         # Gibt True zurueck, wenn der externe Artikelverweis auf die CRR zeigt.
