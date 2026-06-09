@@ -60,14 +60,14 @@ def ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
     # Beispiele:
     # Article 17 of Fourth Council Directive 78/660/EEC
     # Article 42 of Regulation (EU) No 648/2012
-    if re.match(r"^of .{0,80}\b(regulation|directive|decision)\b", context_after_clean):
+    if re.match(r"^of (?!this\b).{0,80}\b(regulation|directive|decision)\b", context_after_clean):
 
         # Gibt True zurueck: Der Treffer verweist auf einen anderen Rechtsakt.
         return True
 
     # Erkennt externe Verweise mit Untergliederungen zwischen Artikelnummer und Rechtsakt.
     # Beispiel: Article 2(1) (b) of Directive ...
-    if re.match(r"^(?:\([^)]+\)\s*)+of .{0,80}\b(regulation|directive|decision)\b", context_after_clean):
+    if re.match(r"^(?:\([^)]+\)\s*)+of (?!this\b)((that|the) )?.{0,80}\b(regulation|directive|decision)\b", context_after_clean):
 
         # Gibt True zurueck: Der Treffer verweist auf einen anderen Rechtsakt.
         return True
@@ -79,9 +79,21 @@ def ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
         # Gibt True zurueck, weil "that Directive" auf einen zuvor genannten Rechtsakt verweist.
         return True
 
+    # Erkennt Rueckverweise mit Untergliederung wie "Article 94(1) of that Directive".
+    if re.match(r"^(?:\([^)]+\)\s*)+of that directive", context_after_clean) and "directive" in context_before_lower:
+
+        # Gibt True zurueck, weil "that Directive" auf einen zuvor genannten Rechtsakt verweist.
+        return True
+
     # Erkennt Rueckverweise wie "of that Regulation".
     # Das ist extern, wenn kurz vorher bereits eine Regulation genannt wurde.
     if context_after_clean.startswith("of that regulation") and "regulation" in context_before_lower:
+
+        # Gibt True zurueck, weil "that Regulation" auf einen zuvor genannten Rechtsakt verweist.
+        return True
+
+    # Erkennt Rueckverweise mit Untergliederung wie "Article 19(1) of that Regulation".
+    if re.match(r"^(?:\([^)]+\)\s*)+of that regulation", context_after_clean) and "regulation" in context_before_lower:
 
         # Gibt True zurueck, weil "that Regulation" auf einen zuvor genannten Rechtsakt verweist.
         return True

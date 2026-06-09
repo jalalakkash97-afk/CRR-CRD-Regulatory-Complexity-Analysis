@@ -56,9 +56,21 @@ def artikelteil_ohne_rechtsaktnummern(fragment):
         fragment = fragment[:match.start()]
 
     # Stoppt vor einem spaeteren Singularverweis, damit Einzelverweise getrennt bleiben.
-    singular_match = re.search(r"\bArticle\s+\d+", fragment[len("Articles"):], re.IGNORECASE)
-    if singular_match is not None:
-        fragment = fragment[:len("Articles") + singular_match.start()]
+    follow_up_match = re.search(r"\bArticles?\s+\d+", fragment[len("Articles"):], re.IGNORECASE)
+    if follow_up_match is not None:
+        fragment = fragment[:len("Articles") + follow_up_match.start()]
+
+    return fragment
+
+
+def relevanter_mehrfachverweis_text(fragment):
+    """Grenzt den Text auf den eigentlichen Mehrfachverweis ein."""
+
+    # Stoppt vor einem spaeteren Singularverweis, damit dessen Rechtsaktangabe
+    # nicht faelschlich auf den vorherigen Mehrfachverweis uebertragen wird.
+    follow_up_match = re.search(r"\bArticles?\s+\d+", fragment[len("Articles"):], re.IGNORECASE)
+    if follow_up_match is not None:
+        fragment = fragment[:len("Articles") + follow_up_match.start()]
 
     return fragment
 
@@ -146,17 +158,18 @@ def mehrfachverweise_crr(parabegin, paraend, counter_multi_ref,
                 fragment_end = min(fragment_end, marker_pos)
 
         fragment = CFR_Text[match_start:fragment_end]
-        artikelnummern = extrahiere_artikelnummern(fragment, ParagraphList)
+        relevanter_text = relevanter_mehrfachverweis_text(fragment)
+        artikelnummern = extrahiere_artikelnummern(relevanter_text, ParagraphList)
 
         if len(artikelnummern) == 0:
             counter_non_identified_ref += 1
             continue
 
-        if ziel_ist_crd(fragment):
+        if ziel_ist_crd(relevanter_text):
             CRDMehrfachverweise += artikelnummern
             continue
 
-        if ziel_ist_extern(fragment):
+        if ziel_ist_extern(relevanter_text):
             ExterneMehrfachverweise += artikelnummern
             continue
 

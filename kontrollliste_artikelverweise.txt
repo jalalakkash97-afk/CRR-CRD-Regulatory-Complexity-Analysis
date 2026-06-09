@@ -1,0 +1,541 @@
+Kontrollliste Artikelverweise
+Enthalten sind Einzelverweise und Mehrfachverweise zusammen.
+
+CRD
+CRD_2 -> gleich=CRD_30, CRD_31, CRD_34; anderer=CRR_4
+CRD_3 -> anderer=CRR_4, CRR_143, CRR_221, CRR_225, CRR_312, CRR_259
+CRD_6 -> gleich=CRD_4; extern=Article 16
+CRD_8 -> gleich=CRD_10, CRD_14, CRD_11, CRD_12, CRD_13; extern=Article 15, Article 10, Article 11, Article 12, Article 13, Article 14
+CRD_12 -> gleich=CRD_13; anderer=CRR_26
+CRD_13 -> gleich=CRD_91
+CRD_14 -> gleich=CRD_12, CRD_23, CRD_24; extern=Article 9, Article 10
+CRD_17 -> gleich=CRD_35, CRD_36, CRD_37, CRD_49, CRD_40, CRD_41, CRD_42, CRD_43, CRD_44, CRD_45, CRD_46, CRD_74, CRD_75
+CRD_18 -> gleich=CRD_104, CRD_105, CRD_67
+CRD_20 -> gleich=CRD_8, CRD_14, CRD_74, CRD_109, CRD_12
+CRD_21 -> gleich=CRD_13, CRD_36, CRD_10, CRD_12, CRD_17, CRD_33, CRD_34, CRD_35, CRD_39, CRD_40, CRD_41, CRD_42, CRD_43, CRD_44, CRD_45, CRD_46, CRD_2, CRD_4; anderer=CRR_10
+CRD_22 -> gleich=CRD_23, CRD_24; extern=Article 9, Article 15
+CRD_23 -> gleich=CRD_22, CRD_91; extern=Article 1
+CRD_24 -> extern=Article 2
+CRD_25 -> extern=Article 9
+CRD_26 -> gleich=CRD_22, CRD_25, CRD_65, CRD_66, CRD_67, CRD_68, CRD_69, CRD_70, CRD_71, CRD_72
+CRD_27 -> gleich=CRD_12, CRD_26, CRD_22, CRD_25; extern=Article 9, Article 10, Article 11
+CRD_28 -> gleich=CRD_29; anderer=CRR_26
+CRD_29 -> anderer=CRR_92, CRR_93, CRR_94, CRR_95
+CRD_30 -> extern=Article 31, Article 32
+CRD_31 -> anderer=CRR_4; extern=Article 4
+CRD_32 -> gleich=CRD_28, CRD_29, CRD_30
+CRD_33 -> gleich=CRD_35, CRD_36, CRD_39, CRD_40, CRD_41, CRD_42, CRD_43, CRD_44, CRD_45, CRD_46
+CRD_34 -> gleich=CRD_35, CRD_36, CRD_39, CRD_40, CRD_41, CRD_42, CRD_43, CRD_44, CRD_45, CRD_46; anderer=CRR_92; extern=Article 89, Article 90
+CRD_35 -> gleich=CRD_34; anderer=CRR_92; extern=Article 15, Article 10, Article 11, Article 12, Article 13, Article 14
+CRD_36 -> gleich=CRD_35, CRD_33, CRD_52, CRD_4; extern=Article 15, Article 10, Article 11, Article 12, Article 13, Article 14
+CRD_37 -> gleich=CRD_35, CRD_36
+CRD_39 -> extern=Article 15, Article 10, Article 11, Article 12, Article 13, Article 14
+CRD_40 -> gleich=CRD_51, CRD_53
+CRD_41 -> gleich=CRD_50; extern=Article 19
+CRD_42 -> gleich=CRD_41, CRD_43
+CRD_43 -> gleich=CRD_41; extern=Article 3, Article 19
+CRD_44 -> gleich=CRD_40, CRD_41
+CRD_48 -> extern=Article 35, Article 33
+CRD_49 -> gleich=CRD_33, CRD_34
+CRD_50 -> extern=Article 19, Article 15, Article 10, Article 11, Article 12, Article 13, Article 14
+CRD_51 -> gleich=CRD_112, CRD_117, CRD_114, CRD_58, CRD_59, CRD_97, CRD_113, CRD_86, CRD_116, CRD_50, CRD_7, CRD_104, CRD_105; anderer=CRR_95; extern=Article 19, Article 15, Article 10, Article 11, Article 12, Article 13, Article 14
+CRD_52 -> gleich=CRD_50, CRD_118, CRD_99
+CRD_53 -> gleich=CRD_100; extern=Article 15, Article 32, Article 31, Article 35, Article 36
+CRD_54 -> gleich=CRD_53, CRD_72
+CRD_55 -> gleich=CRD_56, CRD_57, CRD_53; extern=Article 33
+CRD_56 -> gleich=CRD_53, CRD_54; anderer=CRR_113
+CRD_57 -> gleich=CRD_53, CRD_54, CRD_55; anderer=CRR_113
+CRD_58 -> gleich=CRD_54, CRD_53, CRD_114; anderer=CRR_113
+CRD_59 -> gleich=CRD_53, CRD_54, CRD_114
+CRD_60 -> gleich=CRD_52, CRD_53, CRD_56, CRD_59
+CRD_61 -> gleich=CRD_53, CRD_54, CRD_55
+CRD_63 -> extern=Article 51, Article 37, Article 73
+CRD_64 -> gleich=CRD_18, CRD_102, CRD_104, CRD_105
+CRD_65 -> gleich=CRD_64
+CRD_66 -> gleich=CRD_9, CRD_22, CRD_25; anderer=CRR_316
+CRD_67 -> gleich=CRD_22, CRD_25, CRD_26, CRD_74, CRD_141, CRD_91, CRD_18, CRD_65; anderer=CRR_92, CRR_99, CRR_101, CRR_394, CRR_415, CRR_430, CRR_412, CRR_395, CRR_405, CRR_431, CRR_451, CRR_316, CRR_28, CRR_51, CRR_63; extern=Article 47
+CRD_69 -> gleich=CRD_53, CRD_13, CRD_16, CRD_91, CRD_121, CRD_68, CRD_65, CRD_66, CRD_67
+CRD_74 -> gleich=CRD_76, CRD_77, CRD_78, CRD_79, CRD_80, CRD_81, CRD_82, CRD_83, CRD_84, CRD_85, CRD_86, CRD_87, CRD_88, CRD_89, CRD_90, CRD_91, CRD_92, CRD_93, CRD_94, CRD_95; extern=Article 25
+CRD_75 -> gleich=CRD_92, CRD_93, CRD_94, CRD_95; anderer=CRR_450; extern=Article 4
+CRD_76 -> extern=Article 41, Article 7
+CRD_77 -> extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRD_78 -> extern=Article 16, Article 15, Article 10, Article 11, Article 12, Article 13, Article 14
+CRD_83 -> anderer=CRR_345
+CRD_87 -> anderer=CRR_429
+CRD_88 -> anderer=CRR_435
+CRD_89 -> gleich=CRD_145
+CRD_91 -> anderer=CRR_113, CRR_435
+CRD_92 -> gleich=CRD_95, CRD_93, CRD_94
+CRD_93 -> gleich=CRD_92
+CRD_94 -> gleich=CRD_92, CRD_52, CRD_10
+CRD_96 -> gleich=CRD_88, CRD_89, CRD_90, CRD_91, CRD_92, CRD_93, CRD_94, CRD_95
+CRD_97 -> gleich=CRD_99; anderer=CRR_98; extern=Article 23
+CRD_98 -> gleich=CRD_97, CRD_81; anderer=CRR_177, CRR_105, CRR_429
+CRD_99 -> gleich=CRD_97, CRD_98, CRD_52, CRD_119, CRD_122; anderer=CRR_100, CRR_97
+CRD_100 -> gleich=CRD_97; extern=Article 16
+CRD_101 -> anderer=CRR_366; extern=Article 16
+CRD_102 -> gleich=CRD_104
+CRD_103 -> gleich=CRD_97, CRD_98, CRD_104, CRD_105, CRD_106; extern=Article 16
+CRD_104 -> gleich=CRD_101, CRD_98, CRD_73, CRD_74, CRD_97; anderer=CRR_97, CRR_98, CRR_1, CRR_393, CRR_377, CRR_102, CRR_103
+CRD_105 -> gleich=CRD_86, CRD_97, CRD_67
+CRD_106 -> gleich=CRD_14, CRD_74, CRD_109
+CRD_107 -> gleich=CRD_97, CRD_81, CRD_98, CRD_100, CRD_101, CRD_102, CRD_104, CRD_105, CRD_76, CRD_77, CRD_78, CRD_79, CRD_80, CRD_82, CRD_83, CRD_84, CRD_85, CRD_86, CRD_87; extern=Article 35, Article 30, Article 16
+CRD_108 -> gleich=CRD_73, CRD_111; anderer=CRR_19, CRR_10, CRR_15; extern=Article 2
+CRD_109 -> anderer=CRR_7
+CRD_110 -> gleich=CRD_97; anderer=CRR_15
+CRD_112 -> gleich=CRD_117; extern=Article 19
+CRD_113 -> gleich=CRD_104, CRD_86, CRD_105, CRD_73, CRD_97; extern=Article 19, Article 15
+CRD_114 -> gleich=CRD_51, CRD_58, CRD_59, CRD_112; extern=Article 18, Article 54, Article 58
+CRD_115 -> extern=Article 28
+CRD_116 -> gleich=CRD_114, CRD_99, CRD_97, CRD_117, CRD_112, CRD_115, CRD_51, CRD_7, CRD_113; extern=Article 21, Article 15, Article 19, Article 54, Article 58, Article 10, Article 11, Article 12, Article 13, Article 14
+CRD_117 -> gleich=CRD_14, CRD_74, CRD_109, CRD_104; anderer=CRR_312; extern=Article 35, Article 19
+CRD_118 -> gleich=CRD_125, CRD_119
+CRD_119 -> gleich=CRD_122; anderer=CRR_19
+CRD_120 -> extern=Article 3, Article 54, Article 10, Article 11, Article 12, Article 13, Article 14, Article 1093, Article 2010, Article 1094, Article 1095
+CRD_121 -> gleich=CRD_91
+CRD_122 -> gleich=CRD_125, CRD_118
+CRD_123 -> anderer=CRR_394
+CRD_124 -> gleich=CRD_119, CRD_110, CRD_111, CRD_122
+CRD_125 -> gleich=CRD_53; anderer=CRR_11
+CRD_127 -> anderer=CRR_111, CRR_2
+CRD_128 -> gleich=CRD_129, CRD_130, CRD_131, CRD_133, CRD_136, CRD_137, CRD_135
+CRD_129 -> gleich=CRD_104, CRD_141; anderer=CRR_92
+CRD_130 -> gleich=CRD_140, CRD_129, CRD_104, CRD_141; anderer=CRR_92
+CRD_131 -> gleich=CRD_133, CRD_129, CRD_130, CRD_102, CRD_104; anderer=CRR_92; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRD_132 -> gleich=CRD_131
+CRD_133 -> gleich=CRD_131, CRD_141, CRD_64, CRD_129, CRD_130, CRD_102, CRD_104; anderer=CRR_92; extern=Article 19, Article 34, Article 458, Article 459
+CRD_134 -> gleich=CRD_133; extern=Article 16
+CRD_135 -> gleich=CRD_136; extern=Article 16
+CRD_136 -> gleich=CRD_135, CRD_140; anderer=CRR_92
+CRD_137 -> anderer=CRR_136, CRR_92
+CRD_138 -> extern=Article 16
+CRD_139 -> gleich=CRD_138; anderer=CRR_92
+CRD_140 -> gleich=CRD_139, CRD_137, CRD_136; anderer=CRR_136, CRR_92, CRR_112; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRD_141 -> anderer=CRR_26, CRR_92; extern=Article 26
+CRD_142 -> gleich=CRD_102, CRD_141
+CRD_143 -> gleich=CRD_97, CRD_102, CRD_65; extern=Article 15, Article 54, Article 58
+CRD_144 -> anderer=CRR_7, CRR_9, CRR_92; extern=Article 7, Article 92
+CRD_145 -> gleich=CRD_148, CRD_3, CRD_128, CRD_31, CRD_50, CRD_98, CRD_89, CRD_23, CRD_33, CRD_34, CRD_76, CRD_77, CRD_78, CRD_79, CRD_80, CRD_81, CRD_82, CRD_83, CRD_84, CRD_85, CRD_86, CRD_87, CRD_88; extern=Article 4
+CRD_146 -> gleich=CRD_147, CRD_2, CRD_12
+CRD_147 -> extern=Article 3, Article 5
+CRD_148 -> gleich=CRD_145
+CRD_149 -> extern=Article 13
+CRD_150 -> gleich=CRD_21, CRD_6; anderer=CRR_49; extern=Article 228, Article 309, Article 10, Article 11, Article 12, Article 13, Article 14
+CRD_151 -> gleich=CRD_145, CRD_40, CRD_41, CRD_43, CRD_49, CRD_50, CRD_51; anderer=CRR_460
+CRD_152 -> gleich=CRD_156
+CRD_154 -> gleich=CRD_153
+CRD_155 -> gleich=CRD_33, CRD_34
+CRD_158 -> gleich=CRD_112, CRD_117, CRD_114, CRD_58, CRD_59, CRD_116, CRD_60, CRD_155; anderer=CRR_95
+CRD_159 -> gleich=CRD_50, CRD_118
+CRD_160 -> gleich=CRD_129, CRD_130, CRD_1, CRD_31, CRD_2, CRD_3, CRD_4, CRD_141, CRD_142; anderer=CRR_92
+CRD_161 -> gleich=CRD_94, CRD_77, CRD_79, CRD_91, CRD_108, CRD_109
+CRD_162 -> gleich=CRD_94, CRD_131, CRD_133
+
+CRR
+CRR_1 -> gleich=CRR_460
+CRR_4 -> gleich=CRR_115, CRR_25, CRR_71, CRR_301, CRR_113, CRR_1; anderer=CRD_3, CRD_12; extern=Article 4, Article 13, Article 1, Article 2, Article 212, Article 17, Article 14, Article 25, Article 42, Article 45, Article 88, Article 94, Article 99, Article 38
+CRR_6 -> gleich=CRR_19, CRR_508, CRR_95, CRR_96, CRR_7, CRR_89, CRR_90, CRR_91
+CRR_7 -> gleich=CRR_6, CRR_11
+CRR_8 -> gleich=CRR_21, CRR_113; anderer=CRD_86
+CRR_9 -> gleich=CRR_6, CRR_7; anderer=CRD_144
+CRR_11 -> gleich=CRR_18, CRR_508, CRR_10; anderer=CRD_111
+CRR_13 -> gleich=CRR_10, CRR_18, CRR_437, CRR_438, CRR_440, CRR_442, CRR_450, CRR_451, CRR_453
+CRR_14 -> gleich=CRR_407, CRR_92, CRR_18, CRR_405, CRR_406
+CRR_15 -> gleich=CRR_95, CRR_36, CRR_56, CRR_66, CRR_96, CRR_26, CRR_51, CRR_62
+CRR_16 -> gleich=CRR_6
+CRR_17 -> gleich=CRR_15
+CRR_18 -> anderer=CRD_111; extern=Article 12, Article 2, Article 10, Article 11, Article 13, Article 14
+CRR_19 -> anderer=CRD_111
+CRR_20 -> gleich=CRR_143, CRR_151, CRR_283, CRR_312, CRR_422, CRR_425, CRR_363, CRR_321, CRR_322, CRR_3, CRR_6; anderer=CRD_105; extern=Article 19, Article 15
+CRR_21 -> gleich=CRR_8; extern=Article 31
+CRR_22 -> gleich=CRR_89, CRR_90, CRR_91
+CRR_23 -> gleich=CRR_4
+CRR_26 -> gleich=CRR_28, CRR_29, CRR_80; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_27 -> gleich=CRR_29, CRR_28; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_28 -> gleich=CRR_77, CRR_27, CRR_484; extern=Article 22, Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_29 -> gleich=CRR_28; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_30 -> gleich=CRR_28, CRR_29
+CRR_31 -> gleich=CRR_28, CRR_27
+CRR_32 -> extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_33 -> extern=Article 52, Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_34 -> gleich=CRR_105
+CRR_35 -> gleich=CRR_33
+CRR_36 -> gleich=CRR_56, CRR_243, CRR_244, CRR_258, CRR_379, CRR_153, CRR_155, CRR_66, CRR_158, CRR_159; extern=Article 4, Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_38 -> gleich=CRR_48
+CRR_40 -> gleich=CRR_36
+CRR_41 -> gleich=CRR_36; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_42 -> gleich=CRR_36
+CRR_44 -> gleich=CRR_36
+CRR_45 -> gleich=CRR_36
+CRR_46 -> gleich=CRR_36, CRR_32, CRR_33, CRR_34, CRR_35, CRR_44, CRR_45
+CRR_47 -> gleich=CRR_36, CRR_44, CRR_45, CRR_2
+CRR_48 -> gleich=CRR_36, CRR_32, CRR_33, CRR_34, CRR_35
+CRR_49 -> gleich=CRR_113, CRR_99, CRR_92; extern=Article 6, Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_50 -> gleich=CRR_36, CRR_32, CRR_33, CRR_34, CRR_35, CRR_48, CRR_49, CRR_79
+CRR_51 -> gleich=CRR_52
+CRR_52 -> gleich=CRR_77, CRR_78, CRR_484; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_53 -> gleich=CRR_52
+CRR_54 -> gleich=CRR_52, CRR_92
+CRR_55 -> gleich=CRR_52
+CRR_56 -> gleich=CRR_60, CRR_66
+CRR_57 -> gleich=CRR_56
+CRR_58 -> gleich=CRR_56
+CRR_59 -> gleich=CRR_56
+CRR_60 -> gleich=CRR_56, CRR_32, CRR_36, CRR_44, CRR_45
+CRR_61 -> gleich=CRR_56, CRR_79
+CRR_62 -> gleich=CRR_63, CRR_158, CRR_159, CRR_6, CRR_3
+CRR_63 -> gleich=CRR_77, CRR_78
+CRR_65 -> gleich=CRR_63
+CRR_66 -> gleich=CRR_70
+CRR_67 -> gleich=CRR_66
+CRR_68 -> gleich=CRR_66
+CRR_69 -> gleich=CRR_66
+CRR_70 -> gleich=CRR_66, CRR_32, CRR_36, CRR_44, CRR_45
+CRR_71 -> gleich=CRR_66, CRR_79
+CRR_73 -> extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_75 -> gleich=CRR_45, CRR_59, CRR_69
+CRR_76 -> gleich=CRR_42, CRR_45, CRR_57, CRR_59, CRR_67, CRR_69; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_78 -> gleich=CRR_77, CRR_92, CRR_27; anderer=CRD_128, CRD_104; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_79 -> extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_80 -> gleich=CRR_28, CRR_29
+CRR_83 -> gleich=CRR_52, CRR_63; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_84 -> gleich=CRR_92, CRR_500, CRR_81, CRR_7, CRR_113, CRR_458, CRR_459, CRR_85, CRR_87; anderer=CRD_104, CRD_128; extern=Article 1, Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_85 -> gleich=CRR_92, CRR_500, CRR_81, CRR_7, CRR_458, CRR_459; anderer=CRD_104, CRD_128
+CRR_86 -> gleich=CRR_84
+CRR_87 -> gleich=CRR_92, CRR_500, CRR_81, CRR_7, CRR_458, CRR_459; anderer=CRD_104, CRD_128
+CRR_88 -> gleich=CRR_84
+CRR_89 -> extern=Article 16
+CRR_90 -> gleich=CRR_89, CRR_36
+CRR_91 -> gleich=CRR_89, CRR_79; extern=Article 35
+CRR_92 -> gleich=CRR_379, CRR_93, CRR_94, CRR_1, CRR_4, CRR_5, CRR_395, CRR_396, CRR_397, CRR_398, CRR_399, CRR_400, CRR_401
+CRR_93 -> extern=Article 6
+CRR_94 -> gleich=CRR_92
+CRR_95 -> gleich=CRR_92, CRR_4, CRR_97
+CRR_96 -> gleich=CRR_92, CRR_97; anderer=CRD_28
+CRR_97 -> gleich=CRR_4, CRR_95, CRR_96; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_98 -> gleich=CRR_95, CRR_92, CRR_96
+CRR_99 -> gleich=CRR_92, CRR_24; extern=Article 4, Article 6, Article 15
+CRR_100 -> gleich=CRR_99
+CRR_101 -> gleich=CRR_124; extern=Article 15
+CRR_102 -> gleich=CRR_103, CRR_104, CRR_105, CRR_106
+CRR_104 -> gleich=CRR_102, CRR_4
+CRR_105 -> extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_106 -> gleich=CRR_299
+CRR_107 -> gleich=CRR_143, CRR_92, CRR_464
+CRR_108 -> gleich=CRR_151, CRR_92, CRR_36, CRR_62
+CRR_109 -> gleich=CRR_112, CRR_259, CRR_147, CRR_251, CRR_252, CRR_253, CRR_254, CRR_255, CRR_256, CRR_257, CRR_258, CRR_245, CRR_246, CRR_260, CRR_261, CRR_262, CRR_263, CRR_264, CRR_265, CRR_266
+CRR_110 -> gleich=CRR_62, CRR_159, CRR_36, CRR_111, CRR_178, CRR_148, CRR_150, CRR_2, CRR_166, CRR_167, CRR_168, CRR_246, CRR_266; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_111 -> gleich=CRR_223, CRR_34, CRR_110, CRR_224, CRR_225
+CRR_113 -> gleich=CRR_178; extern=Article 12
+CRR_114 -> gleich=CRR_136, CRR_464
+CRR_115 -> gleich=CRR_119, CRR_120, CRR_150, CRR_464
+CRR_116 -> gleich=CRR_120, CRR_464, CRR_119
+CRR_117 -> gleich=CRR_119, CRR_120, CRR_121
+CRR_119 -> gleich=CRR_120, CRR_121, CRR_114
+CRR_120 -> gleich=CRR_136, CRR_131
+CRR_121 -> gleich=CRR_162
+CRR_122 -> gleich=CRR_136
+CRR_123 -> gleich=CRR_112
+CRR_124 -> gleich=CRR_125, CRR_126, CRR_101, CRR_199; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_125 -> gleich=CRR_124, CRR_208, CRR_229
+CRR_126 -> gleich=CRR_124, CRR_208, CRR_229
+CRR_127 -> gleich=CRR_178, CRR_125, CRR_126
+CRR_128 -> extern=Article 4, Article 51, Article 16
+CRR_129 -> gleich=CRR_115, CRR_116, CRR_201, CRR_208, CRR_229, CRR_136; extern=Article 52
+CRR_131 -> gleich=CRR_136
+CRR_132 -> gleich=CRR_136, CRR_464
+CRR_133 -> gleich=CRR_48, CRR_89, CRR_128
+CRR_134 -> gleich=CRR_201, CRR_112, CRR_213, CRR_214, CRR_215, CRR_4; extern=Article 4
+CRR_135 -> gleich=CRR_2; extern=Article 18
+CRR_136 -> extern=Article 15
+CRR_137 -> gleich=CRR_114
+CRR_139 -> gleich=CRR_129
+CRR_142 -> gleich=CRR_4, CRR_464
+CRR_143 -> extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_144 -> gleich=CRR_143, CRR_99; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_147 -> gleich=CRR_117, CRR_118, CRR_115, CRR_116, CRR_119, CRR_166
+CRR_148 -> gleich=CRR_150, CRR_147, CRR_154; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_149 -> gleich=CRR_151, CRR_148, CRR_150
+CRR_150 -> gleich=CRR_147, CRR_114, CRR_113, CRR_119, CRR_215; extern=Article 12, Article 16, Article 10, Article 11, Article 13, Article 14
+CRR_151 -> gleich=CRR_157, CRR_152, CRR_158, CRR_147, CRR_155, CRR_153, CRR_143, CRR_161, CRR_166
+CRR_152 -> gleich=CRR_132, CRR_147, CRR_155, CRR_150; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_153 -> gleich=CRR_161, CRR_181, CRR_184, CRR_154, CRR_202, CRR_217; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_154 -> gleich=CRR_181, CRR_147, CRR_153, CRR_184, CRR_202, CRR_217
+CRR_155 -> gleich=CRR_48, CRR_162, CRR_153, CRR_178, CRR_165
+CRR_157 -> gleich=CRR_153
+CRR_158 -> gleich=CRR_151, CRR_147, CRR_152, CRR_181, CRR_153
+CRR_159 -> gleich=CRR_158, CRR_166, CRR_34, CRR_110
+CRR_160 -> gleich=CRR_143, CRR_201, CRR_161
+CRR_161 -> gleich=CRR_129, CRR_143, CRR_153
+CRR_162 -> gleich=CRR_143, CRR_384, CRR_153, CRR_383, CRR_4
+CRR_163 -> gleich=CRR_164, CRR_201, CRR_160
+CRR_164 -> gleich=CRR_143, CRR_183, CRR_154, CRR_153, CRR_101; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_165 -> gleich=CRR_155
+CRR_166 -> gleich=CRR_201, CRR_213, CRR_24, CRR_223, CRR_220, CRR_151
+CRR_172 -> gleich=CRR_155, CRR_143, CRR_153, CRR_170
+CRR_173 -> gleich=CRR_155; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_176 -> gleich=CRR_155, CRR_161, CRR_166
+CRR_177 -> gleich=CRR_153
+CRR_178 -> gleich=CRR_127; extern=Article 16, Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_179 -> gleich=CRR_180, CRR_181, CRR_182, CRR_178
+CRR_180 -> gleich=CRR_155, CRR_181, CRR_178, CRR_174, CRR_143; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_181 -> extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_182 -> extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_183 -> gleich=CRR_216, CRR_201, CRR_171, CRR_172, CRR_173, CRR_148, CRR_150; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_190 -> gleich=CRR_179
+CRR_194 -> gleich=CRR_201, CRR_197, CRR_198, CRR_199, CRR_200, CRR_203, CRR_204; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_195 -> gleich=CRR_196
+CRR_196 -> gleich=CRR_223, CRR_299, CRR_197, CRR_198
+CRR_197 -> gleich=CRR_115, CRR_116, CRR_117, CRR_118, CRR_132, CRR_198, CRR_224, CRR_299, CRR_400, CRR_416, CRR_428, CRR_4; extern=Article 15
+CRR_198 -> gleich=CRR_197, CRR_223
+CRR_199 -> gleich=CRR_124, CRR_210, CRR_230, CRR_211, CRR_197, CRR_198, CRR_2, CRR_3, CRR_4
+CRR_201 -> gleich=CRR_117, CRR_116, CRR_119; anderer=CRD_117
+CRR_202 -> gleich=CRR_153
+CRR_205 -> gleich=CRR_206
+CRR_206 -> gleich=CRR_207
+CRR_207 -> gleich=CRR_129
+CRR_210 -> gleich=CRR_209
+CRR_211 -> gleich=CRR_208
+CRR_212 -> gleich=CRR_232
+CRR_213 -> gleich=CRR_214, CRR_134, CRR_166
+CRR_214 -> gleich=CRR_116, CRR_213, CRR_215, CRR_117, CRR_118
+CRR_215 -> gleich=CRR_213, CRR_214
+CRR_216 -> gleich=CRR_213, CRR_233
+CRR_217 -> gleich=CRR_153, CRR_147, CRR_213, CRR_215, CRR_216
+CRR_218 -> gleich=CRR_194
+CRR_220 -> gleich=CRR_113, CRR_223, CRR_224, CRR_225, CRR_226
+CRR_221 -> gleich=CRR_220, CRR_292, CRR_294, CRR_285, CRR_113; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_222 -> gleich=CRR_207, CRR_111, CRR_227, CRR_114, CRR_115, CRR_117, CRR_118, CRR_116, CRR_148, CRR_150
+CRR_223 -> gleich=CRR_111, CRR_166, CRR_224, CRR_225, CRR_226, CRR_227, CRR_220, CRR_221
+CRR_224 -> gleich=CRR_197, CRR_285
+CRR_226 -> gleich=CRR_224, CRR_225
+CRR_227 -> gleich=CRR_224, CRR_225, CRR_221, CRR_197, CRR_226; extern=Article 13
+CRR_228 -> gleich=CRR_223, CRR_113, CRR_111
+CRR_229 -> gleich=CRR_208
+CRR_230 -> gleich=CRR_166, CRR_124, CRR_125, CRR_126, CRR_199
+CRR_231 -> gleich=CRR_223
+CRR_232 -> gleich=CRR_212, CRR_233, CRR_200, CRR_197
+CRR_233 -> gleich=CRR_226, CRR_224, CRR_225
+CRR_235 -> gleich=CRR_113, CRR_111, CRR_233, CRR_114
+CRR_236 -> gleich=CRR_233, CRR_166
+CRR_237 -> gleich=CRR_162
+CRR_239 -> gleich=CRR_223, CRR_238, CRR_233, CRR_234, CRR_235, CRR_236
+CRR_241 -> gleich=CRR_240, CRR_204, CRR_216
+CRR_242 -> gleich=CRR_261, CRR_262
+CRR_243 -> gleich=CRR_36; extern=Article 16
+CRR_244 -> gleich=CRR_249, CRR_36, CRR_247; extern=Article 16
+CRR_245 -> gleich=CRR_36, CRR_92, CRR_246, CRR_407, CRR_249, CRR_250
+CRR_246 -> gleich=CRR_110, CRR_268
+CRR_247 -> gleich=CRR_201, CRR_136
+CRR_248 -> gleich=CRR_245; extern=Article 16
+CRR_249 -> gleich=CRR_244, CRR_250, CRR_247
+CRR_250 -> gleich=CRR_249, CRR_92
+CRR_251 -> gleich=CRR_252, CRR_253, CRR_254, CRR_255, CRR_1, CRR_250
+CRR_252 -> gleich=CRR_128
+CRR_254 -> gleich=CRR_255
+CRR_256 -> gleich=CRR_32
+CRR_258 -> gleich=CRR_36, CRR_257, CRR_252
+CRR_259 -> gleich=CRR_261, CRR_262, CRR_253
+CRR_260 -> gleich=CRR_92
+CRR_261 -> gleich=CRR_264, CRR_247
+CRR_262 -> gleich=CRR_261, CRR_264, CRR_247; extern=Article 16
+CRR_263 -> gleich=CRR_255
+CRR_264 -> gleich=CRR_262, CRR_235
+CRR_265 -> gleich=CRR_256
+CRR_266 -> gleich=CRR_110, CRR_159, CRR_36, CRR_260, CRR_247, CRR_264
+CRR_270 -> extern=Article 15
+CRR_273 -> gleich=CRR_94, CRR_282, CRR_283, CRR_153, CRR_183, CRR_143, CRR_299, CRR_33, CRR_291, CRR_233, CRR_234, CRR_235, CRR_236
+CRR_274 -> gleich=CRR_361
+CRR_276 -> gleich=CRR_197, CRR_198, CRR_299
+CRR_278 -> gleich=CRR_280
+CRR_280 -> gleich=CRR_276
+CRR_281 -> gleich=CRR_336
+CRR_282 -> gleich=CRR_336
+CRR_283 -> gleich=CRR_273, CRR_282
+CRR_284 -> gleich=CRR_283, CRR_299, CRR_291, CRR_197, CRR_198
+CRR_285 -> gleich=CRR_284
+CRR_286 -> gleich=CRR_287
+CRR_288 -> gleich=CRR_287, CRR_286, CRR_293
+CRR_289 -> gleich=CRR_283, CRR_286
+CRR_290 -> anderer=CRD_81
+CRR_291 -> gleich=CRR_273
+CRR_292 -> gleich=CRR_284, CRR_291; extern=Article 16
+CRR_293 -> gleich=CRR_287, CRR_288, CRR_284
+CRR_294 -> gleich=CRR_283, CRR_285
+CRR_295 -> gleich=CRR_298, CRR_296, CRR_297
+CRR_297 -> gleich=CRR_296, CRR_295
+CRR_298 -> gleich=CRR_274, CRR_275
+CRR_299 -> gleich=CRR_222, CRR_204
+CRR_300 -> gleich=CRR_301; extern=Article 2, Article 4
+CRR_301 -> gleich=CRR_306, CRR_307, CRR_310, CRR_309
+CRR_302 -> gleich=CRR_304
+CRR_303 -> gleich=CRR_301, CRR_305; extern=Article 39
+CRR_304 -> gleich=CRR_48, CRR_305, CRR_301; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_305 -> gleich=CRR_306; extern=Article 4
+CRR_306 -> gleich=CRR_107, CRR_92
+CRR_307 -> gleich=CRR_308, CRR_309
+CRR_308 -> gleich=CRR_92
+CRR_309 -> gleich=CRR_308, CRR_92
+CRR_311 -> gleich=CRR_50, CRR_310, CRR_301, CRR_306, CRR_309
+CRR_312 -> gleich=CRR_320, CRR_319, CRR_321, CRR_322; anderer=CRD_74, CRD_85; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_314 -> gleich=CRR_320, CRR_321, CRR_322; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_315 -> gleich=CRR_316
+CRR_316 -> extern=Article 27, Article 36, Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_317 -> gleich=CRR_318, CRR_123
+CRR_318 -> gleich=CRR_317; extern=Article 15
+CRR_320 -> gleich=CRR_312
+CRR_321 -> gleich=CRR_312
+CRR_322 -> gleich=CRR_312, CRR_317, CRR_324
+CRR_324 -> gleich=CRR_322
+CRR_327 -> gleich=CRR_336, CRR_328, CRR_329, CRR_330; extern=Article 16
+CRR_328 -> gleich=CRR_336
+CRR_329 -> extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_331 -> gleich=CRR_339, CRR_328, CRR_329, CRR_330
+CRR_332 -> gleich=CRR_338
+CRR_336 -> gleich=CRR_327, CRR_129
+CRR_337 -> gleich=CRR_327, CRR_262, CRR_407, CRR_338, CRR_243, CRR_244; extern=Article 16
+CRR_340 -> gleich=CRR_339; extern=Article 16
+CRR_341 -> gleich=CRR_327; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_344 -> extern=Article 15
+CRR_347 -> gleich=CRR_346, CRR_336
+CRR_348 -> gleich=CRR_353, CRR_352, CRR_367, CRR_350
+CRR_349 -> gleich=CRR_350
+CRR_350 -> gleich=CRR_348, CRR_132
+CRR_351 -> gleich=CRR_352
+CRR_352 -> gleich=CRR_92; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_353 -> gleich=CRR_352, CRR_132
+CRR_354 -> gleich=CRR_352; extern=Article 15
+CRR_355 -> gleich=CRR_359, CRR_356, CRR_357, CRR_358
+CRR_357 -> gleich=CRR_360, CRR_358
+CRR_358 -> gleich=CRR_359; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_361 -> gleich=CRR_359
+CRR_363 -> gleich=CRR_365; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_364 -> gleich=CRR_365, CRR_366, CRR_337, CRR_350, CRR_338, CRR_377
+CRR_365 -> gleich=CRR_364; extern=Article 16
+CRR_366 -> gleich=CRR_365
+CRR_367 -> gleich=CRR_353
+CRR_371 -> gleich=CRR_332, CRR_337, CRR_377
+CRR_372 -> gleich=CRR_365, CRR_367, CRR_368, CRR_369, CRR_370, CRR_373, CRR_374, CRR_375, CRR_376
+CRR_373 -> gleich=CRR_336
+CRR_377 -> gleich=CRR_338, CRR_367, CRR_368, CRR_369, CRR_370
+CRR_379 -> gleich=CRR_161, CRR_36
+CRR_380 -> gleich=CRR_378, CRR_379
+CRR_382 -> gleich=CRR_10, CRR_1, CRR_115; extern=Article 2, Article 3, Article 89, Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_383 -> gleich=CRR_363, CRR_283, CRR_386, CRR_285, CRR_364, CRR_292, CRR_384, CRR_365, CRR_367; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_384 -> gleich=CRR_383, CRR_386, CRR_128, CRR_223, CRR_162
+CRR_385 -> gleich=CRR_384, CRR_382, CRR_275
+CRR_386 -> gleich=CRR_383, CRR_384
+CRR_388 -> gleich=CRR_95, CRR_96
+CRR_390 -> gleich=CRR_283, CRR_299, CRR_345, CRR_112, CRR_378, CRR_379, CRR_380, CRR_36, CRR_56, CRR_66; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_394 -> gleich=CRR_395; extern=Article 15
+CRR_395 -> gleich=CRR_396, CRR_400, CRR_11, CRR_464, CRR_458, CRR_399, CRR_401, CRR_402, CRR_403, CRR_25, CRR_31, CRR_397, CRR_398; anderer=CRD_81; extern=Article 16
+CRR_396 -> gleich=CRR_395, CRR_7, CRR_9
+CRR_397 -> gleich=CRR_395, CRR_299
+CRR_398 -> gleich=CRR_397, CRR_395
+CRR_399 -> gleich=CRR_401, CRR_199, CRR_402, CRR_390, CRR_400, CRR_403, CRR_4
+CRR_400 -> gleich=CRR_395, CRR_113, CRR_129; anderer=CRD_81
+CRR_401 -> gleich=CRR_395, CRR_403
+CRR_402 -> gleich=CRR_395, CRR_125, CRR_124, CRR_208, CRR_229, CRR_126, CRR_394
+CRR_403 -> gleich=CRR_92
+CRR_405 -> gleich=CRR_408, CRR_409
+CRR_406 -> gleich=CRR_405
+CRR_407 -> gleich=CRR_405, CRR_245, CRR_337
+CRR_408 -> gleich=CRR_245; anderer=CRD_79
+CRR_409 -> gleich=CRR_405
+CRR_410 -> gleich=CRR_405, CRR_406, CRR_407, CRR_408, CRR_409; extern=Article 15, Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_411 -> gleich=CRR_153
+CRR_412 -> gleich=CRR_414, CRR_415, CRR_460
+CRR_413 -> gleich=CRR_415, CRR_510
+CRR_414 -> gleich=CRR_412, CRR_413
+CRR_415 -> gleich=CRR_416, CRR_460; anderer=CRD_51, CRD_112, CRD_111; extern=Article 15
+CRR_416 -> gleich=CRR_113, CRR_10, CRR_460, CRR_509, CRR_129, CRR_132, CRR_418; extern=Article 52, Article 15
+CRR_417 -> gleich=CRR_416
+CRR_418 -> gleich=CRR_416, CRR_132
+CRR_419 -> gleich=CRR_416, CRR_412, CRR_417; extern=Article 15, Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_420 -> gleich=CRR_460, CRR_421, CRR_422, CRR_423, CRR_424, CRR_429
+CRR_422 -> gleich=CRR_192, CRR_418, CRR_416, CRR_113, CRR_400, CRR_425, CRR_20, CRR_460; extern=Article 12, Article 10, Article 11, Article 13, Article 14
+CRR_423 -> gleich=CRR_416, CRR_422; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_424 -> gleich=CRR_420, CRR_418, CRR_416, CRR_425
+CRR_425 -> gleich=CRR_113, CRR_129, CRR_192, CRR_416, CRR_424, CRR_162, CRR_422, CRR_10, CRR_20, CRR_460, CRR_423; extern=Article 52, Article 12, Article 10, Article 11, Article 13, Article 14
+CRR_426 -> gleich=CRR_460, CRR_421, CRR_422, CRR_424; extern=Article 15
+CRR_427 -> gleich=CRR_415, CRR_421, CRR_422, CRR_192, CRR_416, CRR_129; extern=Article 52
+CRR_428 -> gleich=CRR_416, CRR_122, CRR_153, CRR_129, CRR_427; extern=Article 52
+CRR_429 -> gleich=CRR_43, CRR_47, CRR_48, CRR_111, CRR_274, CRR_295, CRR_275, CRR_92, CRR_299, CRR_220, CRR_222, CRR_206; extern=Article 10
+CRR_430 -> gleich=CRR_429, CRR_511; anderer=CRD_97; extern=Article 15
+CRR_431 -> gleich=CRR_432
+CRR_432 -> gleich=CRR_435, CRR_437, CRR_450; extern=Article 16
+CRR_433 -> gleich=CRR_437, CRR_438; extern=Article 16
+CRR_436 -> gleich=CRR_7, CRR_9
+CRR_437 -> gleich=CRR_32, CRR_33, CRR_34, CRR_35, CRR_36, CRR_56, CRR_66, CRR_79, CRR_47, CRR_48; extern=Article 15
+CRR_438 -> gleich=CRR_92, CRR_112, CRR_147, CRR_154, CRR_155, CRR_153; anderer=CRD_73, CRD_104
+CRR_440 -> extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_441 -> anderer=CRD_131; extern=Article 15
+CRR_443 -> extern=Article 16, Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_444 -> gleich=CRR_112
+CRR_445 -> gleich=CRR_92
+CRR_446 -> gleich=CRR_312
+CRR_449 -> gleich=CRR_337, CRR_248
+CRR_450 -> anderer=CRD_94
+CRR_451 -> gleich=CRR_429, CRR_499; extern=Article 15
+CRR_452 -> gleich=CRR_154, CRR_147, CRR_178
+CRR_453 -> gleich=CRR_155
+CRR_454 -> gleich=CRR_321, CRR_322, CRR_323, CRR_324
+CRR_455 -> gleich=CRR_363, CRR_364, CRR_104, CRR_105
+CRR_456 -> gleich=CRR_462, CRR_123, CRR_147, CRR_153, CRR_162, CRR_95, CRR_96, CRR_97, CRR_400, CRR_429, CRR_430, CRR_451, CRR_482, CRR_381, CRR_382, CRR_4, CRR_5, CRR_142, CRR_192, CRR_242, CRR_272, CRR_300, CRR_411, CRR_112, CRR_301, CRR_302, CRR_303, CRR_304, CRR_305, CRR_306, CRR_307, CRR_308, CRR_309, CRR_310, CRR_311, CRR_383, CRR_384, CRR_385, CRR_386; extern=Article 50
+CRR_457 -> gleich=CRR_462, CRR_99, CRR_111, CRR_112, CRR_113, CRR_114, CRR_115, CRR_116, CRR_117, CRR_118, CRR_119, CRR_120, CRR_121, CRR_122, CRR_123, CRR_124, CRR_125, CRR_126, CRR_127, CRR_128, CRR_129, CRR_130, CRR_131, CRR_132, CRR_133, CRR_134, CRR_143, CRR_144, CRR_145, CRR_146, CRR_147, CRR_148, CRR_149, CRR_150, CRR_151, CRR_152, CRR_153, CRR_154, CRR_155, CRR_156, CRR_157, CRR_158, CRR_159, CRR_160, CRR_161, CRR_162, CRR_163, CRR_164, CRR_165, CRR_166, CRR_167, CRR_168, CRR_169, CRR_170, CRR_171, CRR_172, CRR_173, CRR_174, CRR_175, CRR_176, CRR_177, CRR_178, CRR_179, CRR_180, CRR_181, CRR_182, CRR_183, CRR_184, CRR_185, CRR_186, CRR_187, CRR_188, CRR_189, CRR_190, CRR_191, CRR_193, CRR_194, CRR_195, CRR_196, CRR_197, CRR_198, CRR_199, CRR_200, CRR_201, CRR_202, CRR_203, CRR_204, CRR_205, CRR_206, CRR_207, CRR_208, CRR_209, CRR_210, CRR_211, CRR_212, CRR_213, CRR_214, CRR_215, CRR_216, CRR_217, CRR_218, CRR_219, CRR_220, CRR_221, CRR_222, CRR_223, CRR_224, CRR_225, CRR_226, CRR_227, CRR_228, CRR_229, CRR_230, CRR_231, CRR_232, CRR_233, CRR_234, CRR_235, CRR_236, CRR_237, CRR_238, CRR_239, CRR_240, CRR_241, CRR_243, CRR_244, CRR_245, CRR_246, CRR_247, CRR_248, CRR_249, CRR_250, CRR_251, CRR_252, CRR_253, CRR_254, CRR_255, CRR_256, CRR_257, CRR_258, CRR_259, CRR_260, CRR_261, CRR_262, CRR_263, CRR_264, CRR_265, CRR_266, CRR_272, CRR_273, CRR_274, CRR_275, CRR_276, CRR_277, CRR_278, CRR_279, CRR_280, CRR_281, CRR_282, CRR_283, CRR_284, CRR_285, CRR_286, CRR_287, CRR_288, CRR_289, CRR_290, CRR_291, CRR_292, CRR_293, CRR_294, CRR_295, CRR_296, CRR_297, CRR_298, CRR_299, CRR_300, CRR_301, CRR_302, CRR_303, CRR_304, CRR_305, CRR_306, CRR_307, CRR_308, CRR_309, CRR_310, CRR_311, CRR_315, CRR_316, CRR_317, CRR_318, CRR_319, CRR_320, CRR_321, CRR_322, CRR_323, CRR_324, CRR_325, CRR_326, CRR_327, CRR_328, CRR_329, CRR_330, CRR_331, CRR_332, CRR_333, CRR_334, CRR_335, CRR_336, CRR_337, CRR_338, CRR_339, CRR_340, CRR_341, CRR_342, CRR_343, CRR_344, CRR_345, CRR_346, CRR_347, CRR_348, CRR_349, CRR_350, CRR_351, CRR_352, CRR_353, CRR_354, CRR_355, CRR_356, CRR_357, CRR_358, CRR_359, CRR_360, CRR_361, CRR_362, CRR_363, CRR_364, CRR_365, CRR_366, CRR_367, CRR_368, CRR_369, CRR_370, CRR_371, CRR_372, CRR_373, CRR_374, CRR_375, CRR_376, CRR_377, CRR_378, CRR_379, CRR_383, CRR_384, CRR_386
+CRR_458 -> gleich=CRR_92, CRR_392, CRR_395, CRR_124, CRR_164, CRR_431, CRR_432, CRR_433, CRR_434, CRR_435, CRR_436, CRR_437, CRR_438, CRR_439, CRR_440, CRR_441, CRR_442, CRR_443, CRR_444, CRR_445, CRR_446, CRR_447, CRR_448, CRR_449, CRR_450, CRR_451, CRR_452, CRR_453, CRR_454, CRR_455; anderer=CRD_129, CRD_101, CRD_103, CRD_104, CRD_105, CRD_133, CRD_136; extern=Article 16
+CRR_459 -> gleich=CRR_462, CRR_92, CRR_392, CRR_395, CRR_396, CRR_397, CRR_398, CRR_399, CRR_400, CRR_401, CRR_402, CRR_403, CRR_431, CRR_432, CRR_433, CRR_434, CRR_435, CRR_436, CRR_437, CRR_438, CRR_439, CRR_440, CRR_441, CRR_442, CRR_443, CRR_444, CRR_445, CRR_446, CRR_447, CRR_448, CRR_449, CRR_450, CRR_451, CRR_452, CRR_453, CRR_454, CRR_455
+CRR_460 -> gleich=CRR_462, CRR_412, CRR_509
+CRR_461 -> gleich=CRR_460, CRR_509, CRR_462, CRR_412
+CRR_462 -> gleich=CRR_456, CRR_457, CRR_458, CRR_459, CRR_460, CRR_31
+CRR_463 -> extern=Article 13
+CRR_464 -> extern=Article 5
+CRR_465 -> gleich=CRR_92
+CRR_466 -> gleich=CRR_24
+CRR_467 -> gleich=CRR_35, CRR_33
+CRR_468 -> gleich=CRR_35, CRR_33, CRR_467, CRR_478
+CRR_469 -> gleich=CRR_36, CRR_478, CRR_472, CRR_470
+CRR_470 -> gleich=CRR_36, CRR_48, CRR_32, CRR_33, CRR_34, CRR_35
+CRR_471 -> gleich=CRR_49
+CRR_472 -> gleich=CRR_33, CRR_36, CRR_468, CRR_469; extern=Article 57
+CRR_473 -> gleich=CRR_481; extern=Article 6
+CRR_474 -> gleich=CRR_56, CRR_478, CRR_475
+CRR_475 -> gleich=CRR_56, CRR_474
+CRR_476 -> gleich=CRR_66, CRR_478, CRR_477
+CRR_477 -> gleich=CRR_66, CRR_476
+CRR_478 -> gleich=CRR_468, CRR_469, CRR_474, CRR_476, CRR_36, CRR_48, CRR_56, CRR_66
+CRR_479 -> gleich=CRR_81; extern=Article 65
+CRR_480 -> gleich=CRR_84, CRR_85, CRR_87
+CRR_481 -> gleich=CRR_36, CRR_49, CRR_32, CRR_33, CRR_34, CRR_35, CRR_56, CRR_66, CRR_1, CRR_2; extern=Article 57, Article 61, Article 63, Article 64, Article 66, Article 13, Article 16, Article 10, Article 11, Article 12, Article 14
+CRR_482 -> gleich=CRR_382; extern=Article 89, Article 2
+CRR_483 -> gleich=CRR_107, CRR_484, CRR_28, CRR_27, CRR_29, CRR_57, CRR_52, CRR_62, CRR_63, CRR_26, CRR_51, CRR_1; extern=Article 57, Article 66
+CRR_484 -> gleich=CRR_483, CRR_485, CRR_486, CRR_28, CRR_29, CRR_57, CRR_154, CRR_52, CRR_62, CRR_63, CRR_26, CRR_27, CRR_51, CRR_1; extern=Article 22, Article 57
+CRR_485 -> gleich=CRR_483, CRR_28; extern=Article 22, Article 57
+CRR_486 -> gleich=CRR_484, CRR_66, CRR_489, CRR_490; extern=Article 66, Article 64
+CRR_487 -> gleich=CRR_484, CRR_486, CRR_51, CRR_52, CRR_62, CRR_63, CRR_1; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_488 -> gleich=CRR_484, CRR_486, CRR_64
+CRR_489 -> gleich=CRR_484, CRR_52, CRR_51, CRR_1
+CRR_490 -> gleich=CRR_484, CRR_63, CRR_62, CRR_1; extern=Article 57
+CRR_491 -> gleich=CRR_489, CRR_490, CRR_3, CRR_5, CRR_1
+CRR_492 -> gleich=CRR_465, CRR_481, CRR_484, CRR_437, CRR_467, CRR_468, CRR_469, CRR_470, CRR_474, CRR_476, CRR_479; extern=Article 15
+CRR_493 -> gleich=CRR_400, CRR_507, CRR_395, CRR_129, CRR_387, CRR_388, CRR_389, CRR_390, CRR_391, CRR_392, CRR_393, CRR_394, CRR_396, CRR_397, CRR_398, CRR_399, CRR_401, CRR_402, CRR_403, CRR_5, CRR_6, CRR_7, CRR_9, CRR_10, CRR_39, CRR_93, CRR_22, CRR_31
+CRR_494 -> gleich=CRR_4
+CRR_495 -> gleich=CRR_114; anderer=CRD_143; extern=Article 10, Article 11, Article 12, Article 13, Article 14
+CRR_496 -> gleich=CRR_129
+CRR_497 -> gleich=CRR_308; extern=Article 89, Article 14, Article 25, Article 5
+CRR_499 -> gleich=CRR_451, CRR_429, CRR_430, CRR_1, CRR_31
+CRR_500 -> gleich=CRR_92; extern=Article 4
+CRR_501 -> gleich=CRR_2
+CRR_502 -> gleich=CRR_33
+CRR_503 -> gleich=CRR_129, CRR_336, CRR_496, CRR_462; extern=Article 52
+CRR_504 -> gleich=CRR_31
+CRR_506 -> gleich=CRR_178
+CRR_507 -> gleich=CRR_400
+CRR_508 -> gleich=CRR_113, CRR_4
+CRR_509 -> gleich=CRR_415, CRR_92, CRR_422, CRR_425, CRR_416, CRR_424, CRR_411
+CRR_510 -> gleich=CRR_415, CRR_427, CRR_428
+CRR_511 -> gleich=CRR_429, CRR_458, CRR_451; anderer=CRD_87, CRD_98, CRD_76, CRD_73, CRD_97
+CRR_514 -> gleich=CRR_275
+CRR_519 -> gleich=CRR_36
+CRR_520 -> gleich=CRR_50, CRR_301, CRR_11, CRR_89, CRR_14, CRR_25; extern=Article 308, Article 301, Article 15, Article 223, Article 285, Article 224, Article 298, Article 274, Article 280, Article 497
+CRR_521 -> gleich=CRR_8, CRR_21, CRR_451, CRR_413

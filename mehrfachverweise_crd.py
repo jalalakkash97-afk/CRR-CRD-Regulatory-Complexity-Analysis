@@ -57,9 +57,30 @@ def artikelteil_ohne_rechtsaktnummern(fragment):
 
     # Stoppt vor einem spaeteren Singularverweis, z.B.:
     # Articles 283 and 363, and ... Article 259(3)
-    singular_match = re.search(r"\bArticle\s+\d+", fragment[len("Articles"):], re.IGNORECASE)
-    if singular_match is not None:
-        fragment = fragment[:len("Articles") + singular_match.start()]
+    follow_up_match = re.search(r"\bArticles?\s+\d+", fragment[len("Articles"):], re.IGNORECASE)
+    if follow_up_match is not None:
+        fragment = fragment[:len("Articles") + follow_up_match.start()]
+
+    return fragment
+
+
+def relevanter_mehrfachverweis_text(fragment):
+    """Grenzt den Text auf den eigentlichen Mehrfachverweis ein.
+
+    Beispiel:
+    "Articles 10 and 12 and Article 13(1) ... Article 10 of Regulation ..."
+    wird fuer die Mehrfachverweis-Pruefung auf "Articles 10 and 12 and" gekuerzt.
+    Dadurch wird der spaetere CRR-Einzelverweis nicht faelschlich auf den
+    Mehrfachverweis uebertragen.
+    """
+
+    # Stoppt vor einem spaeteren Singularverweis, z.B.:
+    # Articles 10 and 12 and Article 13(1) ...
+    # Wichtig: "of Regulation ..." wird hier noch NICHT abgeschnitten,
+    # weil der Rechtsakt fuer die Zielklassifikation gebraucht wird.
+    follow_up_match = re.search(r"\bArticles?\s+\d+", fragment[len("Articles"):], re.IGNORECASE)
+    if follow_up_match is not None:
+        fragment = fragment[:len("Articles") + follow_up_match.start()]
 
     return fragment
 
@@ -146,17 +167,18 @@ def mehrfachverweise_crd(parabegin, paraend, counter_multi_ref,
                 fragment_end = min(fragment_end, marker_pos)
 
         fragment = CFR_Text[match_start:fragment_end]
-        artikelnummern = extrahiere_artikelnummern(fragment, ParagraphList)
+        relevanter_text = relevanter_mehrfachverweis_text(fragment)
+        artikelnummern = extrahiere_artikelnummern(relevanter_text, ParagraphList)
 
         if len(artikelnummern) == 0:
             counter_non_identified_ref += 1
             continue
 
-        if ziel_ist_crr(fragment):
+        if ziel_ist_crr(relevanter_text):
             CRRMehrfachverweise += artikelnummern
             continue
 
-        if ziel_ist_extern(fragment):
+        if ziel_ist_extern(relevanter_text):
             ExterneMehrfachverweise += artikelnummern
             continue
 

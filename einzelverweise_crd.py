@@ -60,9 +60,19 @@ def ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
             # Gibt True zurueck: Der Treffer soll nicht als interner CRD-Verweis zaehlen.
             return True
 
+    # Erkennt externe Verweise, bei denen zwischen "of" und dem Rechtsakttyp noch Zusatzwoerter stehen.
+    # Beispiele:
+    # Article 51 of Council Directive 78/660/EEC
+    # Article 7(2) of Commission Directive 2006/73/EC
+    # Article 11 of Framework Decision 2009/315/JHA
+    if re.match(r"^of (?!this\b).{0,80}\b(regulation|directive|decision)\b", context_after_clean):
+
+        # Gibt True zurueck, weil der Treffer auf einen anderen Rechtsakt verweist.
+        return True
+
     # Erkennt externe Verweise mit Untergliederungen zwischen Artikelnummer und Rechtsakt.
     # Beispiel: Article 2(1) (b) of Directive 2009/65/EC
-    if re.match(r"^(?:\([^)]+\)\s*)+of (regulation|directive|decision|delegated regulation|implementing regulation)", context_after_clean):
+    if re.match(r"^(?:\([^)]+\)\s*)+of (?!this\b)((that|the) )?(regulation|directive|decision|delegated regulation|implementing regulation)", context_after_clean):
 
         # Gibt True zurueck, weil der Treffer auf einen anderen Rechtsakt verweist.
         return True
@@ -76,9 +86,28 @@ def ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
 
     # Erkennt Rueckverweise wie "of that Regulation".
     # Das ist extern, wenn kurz vorher bereits eine Regulation genannt wurde.
-    if context_after_clean.startswith("of that regulation") and "regulation" in context_before_lower:
+    if context_after_clean.startswith("of that regulation"):
 
         # Gibt True zurueck, weil "that Regulation" auf einen zuvor genannten externen Rechtsakt verweist.
+        return True
+
+    # Erkennt Rueckverweise wie "of that Directive".
+    # Das ist extern, wenn kurz vorher bereits eine Directive genannt wurde.
+    if context_after_clean.startswith("of that directive") and "directive" in context_before_lower:
+
+        # Gibt True zurueck, weil "that Directive" auf einen zuvor genannten externen Rechtsakt verweist.
+        return True
+
+    # Erkennt Rueckverweise mit Untergliederung wie "Article 19(1) of that Regulation".
+    if re.match(r"^(?:\([^)]+\)\s*)+of that regulation", context_after_clean):
+
+        # Gibt True zurueck, weil "that Regulation" auf einen zuvor genannten externen Rechtsakt verweist.
+        return True
+
+    # Erkennt Rueckverweise mit Untergliederung wie "Article 4(3) of that Directive".
+    if re.match(r"^(?:\([^)]+\)\s*)+of that directive", context_after_clean) and "directive" in context_before_lower:
+
+        # Gibt True zurueck, weil "that Directive" auf einen zuvor genannten externen Rechtsakt verweist.
         return True
 
     # Wenn kein externer Hinweis gefunden wurde, wird der Treffer nicht als extern markiert.
@@ -218,4 +247,3 @@ def einzelverweise_crd(ParagraphSign, parabegin, paraend, CFR_Text, ParagraphLis
 
     # Gibt interne, externe und davon CRR-bezogene Einzelverweise getrennt an main.py zurueck.
     return Einzelverweise, ExterneEinzelverweise, CRREinzelverweise
-
