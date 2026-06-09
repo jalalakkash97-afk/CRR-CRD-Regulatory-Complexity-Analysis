@@ -13,6 +13,22 @@ Mehrfachverweise wie "Articles 74 and 75" werden spaeter separat behandelt.
 import re
 
 
+# Normalisiert kurze Textausschnitte, damit Zeilenumbrueche die Erkennung nicht stoeren.
+def normalisiere_kontext(text):
+
+    # Macht aus Zeilenumbruechen normale Leerzeichen.
+    text = text.replace("\n", " ")
+
+    # Entfernt Leerzeichen direkt nach einem Schraegstrich, z.B. "575/ 2013".
+    text = re.sub(r"/\s+", "/", text)
+
+    # Fasst mehrere Leerzeichen zu einem Leerzeichen zusammen.
+    text = " ".join(text.split())
+
+    # Gibt den vereinheitlichten Text in Kleinschreibung zurueck.
+    return text.lower()
+
+
 # Definiert eine Hilfsfunktion, die prueft, ob ein gefundener Article-Verweis extern ist.
 def ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
 
@@ -22,12 +38,9 @@ def ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
     # Schneidet ein Textfenster vor dem gefundenen Verweis aus.
     context_before = CFR_Text[max(0, match_start - 240):match_start]
 
-    # Vereinheitlicht Gross-/Kleinschreibung, damit die Suche stabiler ist.
-    context_after_lower = context_after.lower()
-    context_before_lower = context_before.lower()
-
-    # Entfernt fuehrende Leerzeichen nach dem gefundenen Article-Verweis.
-    context_after_clean = context_after_lower.lstrip()
+    # Vereinheitlicht den Text, damit Zeilenumbrueche zwischen "of" und "Regulation" nicht stoeren.
+    context_after_clean = normalisiere_kontext(context_after)
+    context_before_lower = normalisiere_kontext(context_before)
 
     # Definiert starke Hinweise darauf, dass der Artikel zu einem anderen Rechtsakt gehoert.
     external_markers = [
@@ -62,20 +75,25 @@ def ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
 def ist_crr_artikelverweis(CFR_Text, match_start, match_end, paraend):
 
     # Schneidet ein Textfenster direkt nach dem gefundenen Article-Verweis aus.
-    context_after = CFR_Text[match_end:min(match_end + 160, paraend)]
+    context_after = CFR_Text[match_end:min(match_end + 220, paraend)]
 
     # Schneidet ein Textfenster vor dem gefundenen Article-Verweis aus.
     context_before = CFR_Text[max(0, match_start - 240):match_start]
 
-    # Vereinheitlicht Gross-/Kleinschreibung fuer stabile Suche.
-    context_after_lower = context_after.lower()
-    context_before_lower = context_before.lower()
+    # Vereinheitlicht die Textfenster fuer stabile Suche.
+    context_after_clean = normalisiere_kontext(context_after)
+    context_before_lower = normalisiere_kontext(context_before)
 
-    # Entfernt fuehrende Leerzeichen nach dem gefundenen Article-Verweis.
-    context_after_clean = context_after_lower.lstrip()
-
-    # Prueft auf die direkte CRR-Kennung: Regulation (EU) No 575/2013.
-    if "575/2013" in context_after_lower and "regulation" in context_after_lower:
+    # Prueft auf direkte CRR-Kennung direkt nach dem Treffer.
+    # Beispiele:
+    # Article 4(1) of Regulation (EU) No 575/2013
+    # Article 4 (1) of Regulation (EU) No 575/2013
+    # Article 259(3) of Regulation (EU) No 575/2013
+    if (
+        context_after_clean.startswith("of regulation")
+        or context_after_clean.startswith("of the regulation")
+        or re.match(r"^\(\d+\) of regulation", context_after_clean)
+    ) and "575/2013" in context_after_clean:
 
         # Gibt True zurueck, wenn der externe Artikelverweis auf die CRR zeigt.
         return True
@@ -85,6 +103,27 @@ def ist_crr_artikelverweis(CFR_Text, match_start, match_end, paraend):
     if context_after_clean.startswith("of that regulation") and "575/2013" in context_before_lower and "regulation" in context_before_lower:
 
         # Gibt True zurueck, weil "that Regulation" hier auf die CRR zurueckverweist.
+        return True
+
+    # Prueft Faelle, in denen mehrere Article-Verweise in einem Definitionspunkt stehen
+    # und erst am Ende steht, dass sie sich auf Regulation (EU) No 575/2013 beziehen.
+    # Beispiel in CRD Artikel 3, Punkt (59): Article 143, Article 221, Article 225, ...
+    segment_end = paraend
+    for marker in [".", ";"]:
+        marker_pos = CFR_Text.find(marker, match_end, paraend)
+        if marker_pos != -1:
+            segment_end = min(segment_end, marker_pos)
+
+    # Liest nur den aktuellen Satz/Definitionspunkt ab dem gefundenen Verweis.
+    segment_after = normalisiere_kontext(CFR_Text[match_end:segment_end])
+
+    # Wenn in diesem engen Abschnitt explizit die CRR genannt wird, kann der Verweis zur CRR gehoeren.
+    # Diese Regel soll nur bei Aufzaehlungen greifen, z.B.:
+    # Article 143(1), ... Article 225, ... Article 312(2), ... Article 259(3) of Regulation ...
+    # Dadurch werden Faelle wie "Article 31 shall apply ... Article 4 of Regulation ..." nicht falsch als CRR erkannt.
+    if context_after_clean.startswith(",") and "575/2013" in segment_after and "regulation" in segment_after:
+
+        # Gibt True zurueck, weil der Verweis im selben Abschnitt auf die CRR bezogen wird.
         return True
 
     # Gibt False zurueck, wenn kein CRR-Hinweis gefunden wurde.
@@ -127,27 +166,28 @@ def einzelverweise_crd(ParagraphSign, parabegin, paraend, CFR_Text, ParagraphLis
         match_start = parabegin + match.start()
         match_end = parabegin + match.end()
 
-        # Externe Artikelverweise, z. B. auf eine Regulation oder Directive, werden nicht uebernommen.
-        if ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
-
-            # Prueft, ob der externe Verweis speziell auf die CRR zeigt.
-            if ist_crr_artikelverweis(CFR_Text, match_start, match_end, paraend):
-
-                # Speichert CRR-Verweise separat fuer die spaetere Anzahl der CRR-Verweisungen.
-                CRREinzelverweise.append(verweis)
-
-            else:
-
-                # Speichert nur echte externe Verweise auf andere Rechtsakte separat.
-                ExterneEinzelverweise.append(verweis)
-
-            # Springt zum naechsten Treffer, weil externe Verweise nicht in ParagraphVerweise sollen.
-            continue
-
         # Eigenverweise werden nicht gezaehlt.
         if verweis == current_paragraph:
 
             # Springt zum naechsten Treffer.
+            continue
+
+        # CRR-Verweise werden vor CRD-internen Verweisen geprueft.
+        if ist_crr_artikelverweis(CFR_Text, match_start, match_end, paraend):
+
+            # Speichert CRR-Verweise separat fuer die spaetere Anzahl der CRR-Verweisungen.
+            CRREinzelverweise.append(verweis)
+
+            # Springt zum naechsten Treffer, weil CRR-Verweise nicht in die CRD-internen Verweise sollen.
+            continue
+
+        # Externe Artikelverweise, z. B. auf eine andere Regulation oder Directive, werden nicht uebernommen.
+        if ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
+
+            # Speichert nur echte externe Verweise auf andere Rechtsakte separat.
+            ExterneEinzelverweise.append(verweis)
+
+            # Springt zum naechsten Treffer, weil externe Verweise nicht in ParagraphVerweise sollen.
             continue
 
         # Verweise auf Artikel, die nicht in ParagraphList vorkommen, werden nicht als interne Verweise uebernommen.
