@@ -127,14 +127,16 @@ def einzelverweise_crr(ParagraphSign, parabegin, paraend, CFR_Text, ParagraphLis
         # Externe Artikelverweise, z. B. auf eine Regulation oder Directive, werden nicht uebernommen.
         if ist_externer_artikelverweis(CFR_Text, match_start, match_end, paraend):
 
-            # Speichert den externen Artikelverweis separat fuer spaetere Auswertungen.
-            ExterneEinzelverweise.append(verweis)
-
             # Prueft, ob der externe Verweis speziell auf die CRD zeigt.
             if ist_crd_artikelverweis(CFR_Text, match_start, match_end, paraend):
 
                 # Speichert CRD-Verweise separat fuer die spaetere Anzahl der CRD-Verweisungen.
                 CRDEinzelverweise.append(verweis)
+
+            else:
+
+                # Speichert nur echte externe Verweise auf andere Rechtsakte separat.
+                ExterneEinzelverweise.append(verweis)
 
             # Springt zum naechsten Treffer, weil externe Verweise nicht in ParagraphVerweise sollen.
             continue
