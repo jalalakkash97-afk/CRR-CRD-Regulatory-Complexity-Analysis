@@ -25,6 +25,7 @@ from clumb_analysis import clumb_analysis
 from compute_statistics import compute_statistics
 from compute_statistics_crd_crr import compute_statistics_crd_crr
 from write_output import write_output
+from write_output_crd_crr import write_output_crd_crr
 
 
 
@@ -808,4 +809,39 @@ for year in range(2013, 2014):
     print("Mathematische Operatoren:", counter_math)
     print("Artikel mit internen Verweisen:", num_with_ref)
     print("FRES gesamt:", fres_index)
+
+    ##################################################################
+    ################# 8) Ausgabe der Ergebnisse ######################
+    ##################################################################
+
+    number_verweise = sum([len(x) for x in ParagraphVerweise])
+    counter_missing = len(FehlendeInterneVerweise)
+
+    write_output_crd_crr(
+        year,
+        exp_ref_factor,
+        ParagraphList,
+        ParagraphVerweise,
+        number_verweise,
+        counter_missing,
+        Operators_per_Paragraph,
+        Reg_Operators_per_Paragraph,
+        Reg_Operators_alone,
+        FRESPara,
+        Klumpenparagraph,
+        num_para,
+        counter_cycl_compl,
+        counter_quantity,
+        counter_math,
+        sum_reg_costs_vreg,
+        num_with_ref,
+        fres_index,
+        fres_total_syllables,
+        fres_total_words,
+        fres_total_sentence,
+        reg_costs_vreg
+    )
+
+    print("")
+    print("Ergebnisse wurden geschrieben.")
 
