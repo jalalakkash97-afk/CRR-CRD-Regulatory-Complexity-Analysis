@@ -692,4 +692,74 @@ for year in range(2013, 2014):
     print("Noch nicht berechnete Artikel:", sum([1 for x in reg_costs_vreg if x == -1]))
     print("Gesamtsumme Artikelkomplexitaeten:", sum(reg_costs_vreg))
 
+    ##################################################################
+    ################# 6) Kontrollauswertung der Komplexitaet #########
+    ##################################################################
+
+    # Bestimmt fuer jeden Klumpen den kleinsten enthaltenen Artikelindex.
+    # Dadurch wird jeder Klumpen nur einmal gezaehlt.
+    Repr_Klumpen = []
+
+    # Geht alle Artikel durch.
+    for index_p in range(len(Klumpenparagraph)):
+        # Der kleinste Index dient als eindeutiger Vertreter des Klumpens.
+        repr_index = min(Klumpenparagraph[index_p])
+
+        # Fuegt den Vertreter nur einmal hinzu.
+        if repr_index not in Repr_Klumpen:
+            Repr_Klumpen.append(repr_index)
+
+    # Sammelt alle Klumpen, die mehr als einen Artikel enthalten.
+    Mehrartikel_Klumpen = []
+
+    # Geht alle eindeutigen Klumpenvertreter durch.
+    for repr_index in Repr_Klumpen:
+        # Uebernimmt nur Klumpen mit mehr als einem Artikel.
+        if len(Klumpenparagraph[repr_index]) > 1:
+            Mehrartikel_Klumpen.append(Klumpenparagraph[repr_index])
+
+    # Bestimmt den groessten Klumpen.
+    if len(Mehrartikel_Klumpen) > 0:
+        Groesster_Klumpen = max(Mehrartikel_Klumpen, key=len)
+    else:
+        Groesster_Klumpen = []
+
+    # Baut eine Liste mit Artikelname, direktem Workload und finaler Komplexitaet.
+    Artikel_Ergebnisse = []
+
+    # Geht alle Artikel durch.
+    for index_p in range(len(ParagraphList)):
+        # Speichert die wichtigsten Werte je Artikel in einem Tupel.
+        Artikel_Ergebnisse.append((
+            ParagraphList[index_p],
+            Reg_Operators_per_Paragraph[index_p],
+            reg_costs_vreg[index_p],
+            len(ParagraphVerweise[index_p])
+        ))
+
+    # Sortiert nach direktem Workload absteigend.
+    Top_Direkter_Workload = sorted(Artikel_Ergebnisse, key=lambda x: x[1], reverse=True)[:10]
+
+    # Sortiert nach finaler Komplexitaet inklusive Verweisen absteigend.
+    Top_Komplexitaet_mit_Verweisen = sorted(Artikel_Ergebnisse, key=lambda x: x[2], reverse=True)[:10]
+
+    print("")
+    print("Kontrollauswertung Komplexitaet")
+    print("Anzahl Klumpen gesamt:", len(Repr_Klumpen))
+    print("Anzahl Klumpen mit mehr als einem Artikel:", len(Mehrartikel_Klumpen))
+    print("Groesster Klumpen:", len(Groesster_Klumpen), "Artikel")
+
+    if len(Groesster_Klumpen) > 0:
+        print("Erste Artikel im groessten Klumpen:", [ParagraphList[i] for i in Groesster_Klumpen[:20]])
+
+    print("")
+    print("Top 10 direkter Workload")
+    for artikel, direkter_workload, komplexitaet, anzahl_verweise in Top_Direkter_Workload:
+        print(artikel, "->", direkter_workload, "| Verweise:", anzahl_verweise)
+
+    print("")
+    print("Top 10 Komplexitaet mit Verweisen")
+    for artikel, direkter_workload, komplexitaet, anzahl_verweise in Top_Komplexitaet_mit_Verweisen:
+        print(artikel, "->", komplexitaet, "| direkter Workload:", direkter_workload, "| Verweise:", anzahl_verweise)
+
 
