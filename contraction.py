@@ -9,7 +9,7 @@ from factors import zirkel_factor_fun
 
 
 
-def zirkelkontraktion(nodes, Klumpenpara, ParaVerweiseKlumpen, ParaImplicitVerweiseKlumpen, ParaRegOperatorenKlumpen, ParagraphList,exp_ref_factor):
+def zirkelkontraktion(nodes, Klumpenpara, ParaVerweiseKlumpen, ParaImplicitVerweiseKlumpen, ParaOperatorenKlumpen, ParaRegOperatorenKlumpen, ParagraphList,exp_ref_factor):
         # nodes: Indizes der Paragraphen des gefundenen Zirkels
         # Klumpenpara: Zirkelpara[i] entält die Indizes der Paragraphen, die zum selben Klumben wir Paragraph i gehören
         # ParaVerweiseKlumpen: ParaVerweiseKlumpen[i] enthält alle Verweise des Klumpens, die zum selben Klumpen
@@ -27,7 +27,7 @@ def zirkelkontraktion(nodes, Klumpenpara, ParaVerweiseKlumpen, ParaImplicitVerwe
         neuer_klumpen = []
         Verweise = []
         ImplicitVerweis = []
-        #operator_ = 0
+        operator_ = 0
         reg_operator_ = 0
         
         
@@ -80,7 +80,7 @@ def zirkelkontraktion(nodes, Klumpenpara, ParaVerweiseKlumpen, ParaImplicitVerwe
             Klumpenpara[v] = neuer_klumpen
             ParaVerweiseKlumpen[v] = Verweise
             ParaImplicitVerweiseKlumpen[v] = ImplicitVerweis
-            #ParaOperatorenKlumpen[v] = operator_
+            ParaOperatorenKlumpen[v] = operator_
             ParaRegOperatorenKlumpen[v] = reg_operator_
             
             

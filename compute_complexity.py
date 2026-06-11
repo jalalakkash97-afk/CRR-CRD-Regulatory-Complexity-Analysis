@@ -67,7 +67,7 @@ def compute_complexity(ParagraphList,ParagraphVerweise,Operators_per_Paragraph,R
                         nodes = [Q[index_] for index_ in range(zirkel_start_index, len(Q))]
                         # print("Nodes des Zirkels: ", nodes)
                         (Klumpenparagraph, ParagraphOperatorenKlumpen, ParagraphRegOperatorenKlumpen, ParagraphVerweiseKlumpen, ParagraphImplicitVerweiseKlumpen) = \
-                            zirkelkontraktion(nodes, Klumpenparagraph, ParagraphVerweiseKlumpen, ParagraphImplicitVerweiseKlumpen, ParagraphRegOperatorenKlumpen, ParagraphList,exp_ref_factor)
+                            zirkelkontraktion(nodes, Klumpenparagraph, ParagraphVerweiseKlumpen, ParagraphImplicitVerweiseKlumpen, ParagraphOperatorenKlumpen, ParagraphRegOperatorenKlumpen, ParagraphList,exp_ref_factor)
                         Q = [i]
                         zirkelschluss = True
                         break

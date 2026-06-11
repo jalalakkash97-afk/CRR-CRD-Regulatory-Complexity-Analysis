@@ -651,5 +651,45 @@ for year in range(2013, 2014):
     print("FRES-Listen gesamt:", len(FRESPara))
     print("Summe gewichtete regulatorische Operatoren:", sum_reg_oper)
 
+    ##################################################################
+    ################# 5) Komplexitaet mit Verweisen berechnen ########
+    ##################################################################
+
+    # Parameter wie im Originalcode.
+    exp_ref_factor = 1.1
+
+    # Der Klumpenfaktor wird im Original gleich dem Verweisfaktor gesetzt.
+    clumb_factor = exp_ref_factor
+
+    # Nicht aufloesbare Verweise erhalten aktuell keine Zusatzkosten.
+    # Externe Verweise sind hier ohnehin nicht in ParagraphVerweise enthalten.
+    undef_ref_costs = 0
+
+    # Fuehrt die eigentliche Komplexitaetsberechnung auf dem gemeinsamen CRD/CRR-Korpus aus.
+    (
+        Klumpenparagraph,
+        ParagraphVerweiseKlumpen,
+        ParagraphImplicitVerweiseKlumpen,
+        ParagraphOperatorenKlumpen,
+        ParagraphRegOperatorenKlumpen,
+        reg_costs_vreg
+    ) = compute_complexity(
+        ParagraphList,
+        ParagraphVerweise,
+        Operators_per_Paragraph,
+        Reg_Operators_per_Paragraph,
+        Reg_Operators_alone,
+        num_para,
+        sum_reg_oper,
+        undef_ref_costs,
+        exp_ref_factor,
+        clumb_factor
+    )
+
+    print("")
+    print("Komplexitaetsberechnung")
+    print("Berechnete Artikel:", len(reg_costs_vreg))
+    print("Noch nicht berechnete Artikel:", sum([1 for x in reg_costs_vreg if x == -1]))
+    print("Gesamtsumme Artikelkomplexitaeten:", sum(reg_costs_vreg))
 
 
