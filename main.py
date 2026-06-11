@@ -555,10 +555,101 @@ for year in range(2013, 2014):
         if printed == 15:
             break
 
+    ##################################################################
+    ################# 4) Operatoren und Lesbarkeit berechnen #########
+    ##################################################################
 
-    # 4)Mehrfachverweise 
-    
-    
+    # Das gemeinsame Operatorenwoerterbuch bleibt wie im Originalcode aufgebaut.
+    dictionary_ = reg_operators + log_operators + math_operators
+
+    # Zaehlt alle Operatoren je CRD-Artikel.
+    Operators_per_Paragraph_CRD = operator_counting(
+        dictionary_,
+        ParagraphList_CRD,
+        PositionsParagraph_CRD,
+        EndParagraph_CRD,
+        CRD_Text
+    )
+
+    # Zaehlt alle Operatoren je CRR-Artikel.
+    Operators_per_Paragraph_CRR = operator_counting(
+        dictionary_,
+        ParagraphList_CRR,
+        PositionsParagraph_CRR,
+        EndParagraph_CRR,
+        CRR_Text
+    )
+
+    # Zaehlt nur regulatorische Operatoren je CRD-Artikel.
+    Reg_Operators_per_Paragraph_CRD = operator_counting(
+        reg_operators,
+        ParagraphList_CRD,
+        PositionsParagraph_CRD,
+        EndParagraph_CRD,
+        CRD_Text
+    )
+
+    # Zaehlt nur regulatorische Operatoren je CRR-Artikel.
+    Reg_Operators_per_Paragraph_CRR = operator_counting(
+        reg_operators,
+        ParagraphList_CRR,
+        PositionsParagraph_CRR,
+        EndParagraph_CRR,
+        CRR_Text
+    )
+
+    # Fuehrt die Operatorenlisten in derselben Reihenfolge wie ParagraphList_All zusammen:
+    # zuerst CRD, danach CRR.
+    Operators_per_Paragraph = Operators_per_Paragraph_CRD + Operators_per_Paragraph_CRR
+    Reg_Operators_per_Paragraph = Reg_Operators_per_Paragraph_CRD + Reg_Operators_per_Paragraph_CRR
+
+    # Sichert die ungegewichteten regulatorischen Operatoren.
+    # Diese Liste kann spaeter fuer Kontrollrechnungen oder Ausgaben verwendet werden.
+    Reg_Operators_alone = copy.deepcopy(Reg_Operators_per_Paragraph)
+
+    # Berechnet die Flesch-Reading-Ease-Komponenten fuer die CRD.
+    (FRESPara_CRD, NumParaSent_CRD, NumParaWords_CRD, NumParaSylla_CRD) = computing_fres(
+        ParagraphList_CRD,
+        PositionsParagraph_CRD,
+        EndParagraph_CRD,
+        CRD_Text
+    )
+
+    # Berechnet die Flesch-Reading-Ease-Komponenten fuer die CRR.
+    (FRESPara_CRR, NumParaSent_CRR, NumParaWords_CRR, NumParaSylla_CRR) = computing_fres(
+        ParagraphList_CRR,
+        PositionsParagraph_CRR,
+        EndParagraph_CRR,
+        CRR_Text
+    )
+
+    # Fuehrt die Lesbarkeitswerte ebenfalls in der Reihenfolge von ParagraphList_All zusammen.
+    FRESPara = FRESPara_CRD + FRESPara_CRR
+    NumParaSent = NumParaSent_CRD + NumParaSent_CRR
+    NumParaWords = NumParaWords_CRD + NumParaWords_CRR
+    NumParaSylla = NumParaSylla_CRD + NumParaSylla_CRR
+
+    # Gewichtet die regulatorischen Operatoren mit dem FRES-Wert wie im Originalcode.
+    for index_p in range(len(ParagraphList_All)):
+        Reg_Operators_per_Paragraph[index_p] = round(
+            Reg_Operators_per_Paragraph[index_p] * (1 - (FRESPara[index_p] - 60) / 60)
+        )
+
+    # Ab hier werden die gemeinsamen Listen auf die Originalnamen gelegt.
+    # Dadurch kann der folgende Berechnungsteil moeglichst nah am Originalcode bleiben.
+    ParagraphList = ParagraphList_All
+    ParagraphVerweise = ParagraphVerweise_All
+
+    # Grundgroessen fuer die spaetere Komplexitaetsberechnung.
+    sum_reg_oper = sum(Reg_Operators_per_Paragraph)
+    num_para = len(ParagraphList)
+
+    print("")
+    print("Operatoren und Lesbarkeit")
+    print("Operatorenlisten gesamt:", len(Operators_per_Paragraph))
+    print("Regulatorische Operatorenlisten gesamt:", len(Reg_Operators_per_Paragraph))
+    print("FRES-Listen gesamt:", len(FRESPara))
+    print("Summe gewichtete regulatorische Operatoren:", sum_reg_oper)
 
 
 
