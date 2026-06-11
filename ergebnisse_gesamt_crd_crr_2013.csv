@@ -1,2 +1,2 @@
-year;exp_ref_factor;number_articles;number_references;counter_missing;sum_operators;sum_reg_costs_vreg;largest_clump;counter_cycl_compl;counter_quantity;counter_math;num_with_ref;fres_index;fres_total_syllables;fres_total_words;fres_total_sentence
-2013;1.1;686;2132;0;71204;5.776880067227246e+19;339;50464;9122;11618;500;19.873999846810563;419634;238998;6314
+﻿year;exp_ref_factor;number_articles;number_references;counter_missing;sum_operators;sum_reg_costs_vreg;largest_clump;counter_cycl_compl;counter_quantity;counter_math;num_with_ref;fres_index;fres_total_syllables;fres_total_words;fres_total_sentence
+2013;1.1;686;2132;0;71204;5,776880067227247e+19;339;50464;9122;11618;500;19,873999846810563;419634;238998;6314
