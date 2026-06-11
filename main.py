@@ -402,6 +402,83 @@ for year in range(2013, 2014):
 
         # Speichert die CRD-Verweise fuer den aktuellen CRR-Artikel separat.
         Artikelverweise_CRR_zu_CRD.append(CRDVerweise_clean)
+
+    ##################################################################
+    ################# 3b) Gemeinsame Rechenstruktur fuer die Berechnung bauen ############
+    ##################################################################
+
+    # Ab hier wird aus den getrennten CRD-/CRR-Verweislisten eine gemeinsame Rechenliste gebaut.
+    # Externe Verweise bleiben draussen, weil sie nur fuer die Statistik verwendet werden.
+
+    # Diese Hilfsfunktion entfernt Dopplungen und behaelt die erste Fundreihenfolge bei.
+    def eindeutige_liste(werte):
+        # Ergebnisliste fuer die bereinigten Werte.
+        ergebnis = []
+
+        # Geht jeden gefundenen Verweis der Reihe nach durch.
+        for wert in werte:
+            # Uebernimmt den Verweis nur, wenn er noch nicht in der Ergebnisliste steht.
+            if wert not in ergebnis:
+                # Fuegt den bisher noch nicht enthaltenen Verweis hinzu.
+                ergebnis.append(wert)
+
+        # Gibt die bereinigte Liste zurueck.
+        return ergebnis
+
+    # In dieser Liste stehen die berechnungsrelevanten Verweise der CRD-Artikel.
+    ParagraphVerweise_CRD_Berechnung = []
+
+    # Geht alle CRD-Artikel durch.
+    for counter in range(len(ParagraphList_CRD)):
+        # CRD-interne Verweise bekommen den Praefix "CRD_".
+        verweise_auf_crd = ["CRD_" + verweis for verweis in Artikelverweise_CRD_zu_CRD[counter]]
+
+        # Verweise von der CRD auf die CRR bekommen den Praefix "CRR_".
+        verweise_auf_crr = ["CRR_" + verweis for verweis in Artikelverweise_CRD_zu_CRR[counter]]
+
+        # Fuer die Berechnung gelten CRD->CRD und CRD->CRR gemeinsam als interne Verweise.
+        verweise_gesamt = verweise_auf_crd + verweise_auf_crr
+
+        # Speichert die bereinigte Verweisliste des aktuellen CRD-Artikels.
+        ParagraphVerweise_CRD_Berechnung.append(eindeutige_liste(verweise_gesamt))
+
+    # In dieser Liste stehen die berechnungsrelevanten Verweise der CRR-Artikel.
+    ParagraphVerweise_CRR_Berechnung = []
+
+    # Geht alle CRR-Artikel durch.
+    for counter in range(len(ParagraphList_CRR)):
+        # CRR-interne Verweise bekommen den Praefix "CRR_".
+        verweise_auf_crr = ["CRR_" + verweis for verweis in Artikelverweise_CRR_zu_CRR[counter]]
+
+        # Verweise von der CRR auf die CRD bekommen den Praefix "CRD_".
+        verweise_auf_crd = ["CRD_" + verweis for verweis in Artikelverweise_CRR_zu_CRD[counter]]
+
+        # Fuer die Berechnung gelten CRR->CRR und CRR->CRD gemeinsam als interne Verweise.
+        verweise_gesamt = verweise_auf_crr + verweise_auf_crd
+
+        # Speichert die bereinigte Verweisliste des aktuellen CRR-Artikels.
+        ParagraphVerweise_CRR_Berechnung.append(eindeutige_liste(verweise_gesamt))
+
+    # Diese Liste hat dieselbe Reihenfolge wie ParagraphList_All:
+    # erst alle CRD-Artikel, danach alle CRR-Artikel.
+    ParagraphVerweise_All = ParagraphVerweise_CRD_Berechnung + ParagraphVerweise_CRR_Berechnung
+
+    # Prueft, ob jede Verweisliste genau einem Artikel aus ParagraphList_All entspricht.
+    if len(ParagraphVerweise_All) != len(ParagraphList_All):
+        # Kontrollmeldung fuer den Fall, dass beim Zusammenfuehren etwas nicht passt.
+        print("WARNUNG: ParagraphList_All und ParagraphVerweise_All haben unterschiedliche Laengen.")
+
+    # Sammelt alle Verweise, deren Ziel nicht in der gemeinsamen Artikelliste enthalten ist.
+    FehlendeInterneVerweise = []
+
+    # Geht jeden Artikel der gemeinsamen Liste durch.
+    for counter in range(len(ParagraphVerweise_All)):
+        # Geht alle berechnungsrelevanten Verweise des aktuellen Artikels durch.
+        for verweis in ParagraphVerweise_All[counter]:
+            # Ein interner Verweis muss in ParagraphList_All existieren.
+            if verweis not in ParagraphList_All:
+                # Speichert Quelle und Ziel, damit ein Fehler leicht kontrolliert werden kann.
+                FehlendeInterneVerweise.append((ParagraphList_All[counter], verweis))
     
    
     # Kontrollausgaben fuer den aktuellen Anpassungsschritt.
@@ -420,6 +497,13 @@ for year in range(2013, 2014):
     print("CRR -> CRD:", sum([len(x) for x in Artikelverweise_CRR_zu_CRD]))
     print("CRR -> externe Rechtsakte:", sum([len(x) for x in Artikelverweise_CRR_zu_extern]))
     print("CRR gesamt:", sum([len(x) for x in Artikelverweise_CRR_zu_CRR]) + sum([len(x) for x in Artikelverweise_CRR_zu_CRD]) + sum([len(x) for x in Artikelverweise_CRR_zu_extern]))
+
+    print("")
+    print("Gemeinsame Rechenstruktur")
+    print("Artikel gesamt:", len(ParagraphList_All))
+    print("Verweislisten gesamt:", len(ParagraphVerweise_All))
+    print("Interne Verweise fuer Berechnung:", sum([len(x) for x in ParagraphVerweise_All]))
+    print("Fehlende interne Zielartikel:", len(FehlendeInterneVerweise))
 
     print("")
     print("Erste CRD-internen Treffer:")
