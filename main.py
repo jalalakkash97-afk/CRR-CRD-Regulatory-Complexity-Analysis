@@ -23,6 +23,7 @@ from contraction import zirkelkontraktion
 from compute_complexity import compute_complexity
 from clumb_analysis import clumb_analysis
 from compute_statistics import compute_statistics
+from compute_statistics_crd_crr import compute_statistics_crd_crr
 from write_output import write_output
 
 
@@ -762,4 +763,49 @@ for year in range(2013, 2014):
     for artikel, direkter_workload, komplexitaet, anzahl_verweise in Top_Komplexitaet_mit_Verweisen:
         print(artikel, "->", komplexitaet, "| direkter Workload:", direkter_workload, "| Verweise:", anzahl_verweise)
 
+    ##################################################################
+    ################# 7) Berechnung der relevanten Statistiken ########
+    ##################################################################
+
+    (
+        sum_reg_costs_vreg,
+        num_great_lump,
+        counter_cycl_compl,
+        counter_quantity,
+        counter_math,
+        num_with_ref,
+        fres_index,
+        fres_total_syllables,
+        fres_total_words,
+        fres_total_sentence) = compute_statistics_crd_crr(
+        ParagraphList,
+        ParagraphVerweise,
+        Klumpenparagraph,
+        log_operators,
+        reg_operators,
+        math_operators,
+        ParagraphList_CRD,
+        PositionsParagraph_CRD,
+        EndParagraph_CRD,
+        CRD_Text,
+        ParagraphList_CRR,
+        PositionsParagraph_CRR,
+        EndParagraph_CRR,
+        CRR_Text,
+        NumParaSent,
+        NumParaWords,
+        NumParaSylla,
+        num_para,
+        reg_costs_vreg
+    )
+
+    print("")
+    print("Relevante Statistiken")
+    print("Gesamtkomplexitaet mit Verweisen:", sum_reg_costs_vreg)
+    print("Anzahl Mehrartikel-Klumpen:", num_great_lump)
+    print("Logische Operatoren:", counter_cycl_compl)
+    print("Regulatorische Operatoren:", counter_quantity)
+    print("Mathematische Operatoren:", counter_math)
+    print("Artikel mit internen Verweisen:", num_with_ref)
+    print("FRES gesamt:", fres_index)
 
