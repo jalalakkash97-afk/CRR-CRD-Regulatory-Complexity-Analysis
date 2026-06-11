@@ -39,7 +39,7 @@ def compute_complexity(ParagraphList,ParagraphVerweise,Operators_per_Paragraph,R
     for i in range(num_para):
         #if i % 10 == 0:
             #print("Aeussere Schleife:", i)
-        if reg_costs[i] != -1:
+        if reg_costs_vreg[i] != -1:
             continue
         Q = [i]
         while len(Q) > 0:
@@ -56,7 +56,7 @@ def compute_complexity(ParagraphList,ParagraphVerweise,Operators_per_Paragraph,R
                     continue
                 if u == v:
                     continue
-                if reg_costs[v] == -1:
+                if reg_costs_vreg[v] == -1:
                     Q.append(u)
                     if v in Q:
                         # print("Zirkelschluss")
@@ -66,8 +66,8 @@ def compute_complexity(ParagraphList,ParagraphVerweise,Operators_per_Paragraph,R
 
                         nodes = [Q[index_] for index_ in range(zirkel_start_index, len(Q))]
                         # print("Nodes des Zirkels: ", nodes)
-                        (Klumpenpara, ParaOperatorenKlumpen, ParaRegOperatorenKlumpen, ParaVerweiseKlumpen, ParaImplicitVerweiseKlumpen) = \
-                            zirkelkontraktion(nodes, Klumpenpara, ParaVerweiseKlumpen, ParaImplicitVerweiseKlumpen, ParaRegOperatorenKlumpen, ParagraphList,exp_ref_factor)
+                        (Klumpenparagraph, ParagraphOperatorenKlumpen, ParagraphRegOperatorenKlumpen, ParagraphVerweiseKlumpen, ParagraphImplicitVerweiseKlumpen) = \
+                            zirkelkontraktion(nodes, Klumpenparagraph, ParagraphVerweiseKlumpen, ParagraphImplicitVerweiseKlumpen, ParagraphRegOperatorenKlumpen, ParagraphList,exp_ref_factor)
                         Q = [i]
                         zirkelschluss = True
                         break
