@@ -26,7 +26,7 @@ from clumb_analysis import clumb_analysis
 from compute_statistics import compute_statistics
 from compute_statistics_crd_crr import compute_statistics_crd_crr
 from write_output import write_output
-from write_output_crd_crr import write_output_crd_crr
+from write_output_crd_crr import write_output_crd_crr, write_time_series_crd_crr
 
 
 
@@ -58,9 +58,11 @@ TEXTFASSUNGEN = {
     2025: ("6-226128148-en-226128148-17-01-2025.txt", "5-226128148-en-226128148-29-06-2025.txt"),
 }
 
-# Fuer den ersten kontrollierten Test werden nur zwei Jahre berechnet.
-# Nach erfolgreicher Kontrolle kann diese Liste auf range(2013, 2026) umgestellt werden.
-ANALYSEJAHRE = [2013, 2014]
+# Berechnet die vollstaendige Zeitreihe von 2013 bis einschliesslich 2025.
+ANALYSEJAHRE = range(2013, 2026)
+
+# Sammelt waehrend der Schleife eine zusammenfassende Ergebniszeile je Jahr.
+ZeitreihenErgebnisse = []
 
 
 #######################################################################################################################
@@ -872,7 +874,7 @@ for year in ANALYSEJAHRE:
     number_verweise = sum([len(x) for x in ParagraphVerweise])
     counter_missing = len(FehlendeInterneVerweise)
 
-    write_output_crd_crr(
+    gesamtzeile = write_output_crd_crr(
         year,
         exp_ref_factor,
         ParagraphList,
@@ -900,6 +902,15 @@ for year in ANALYSEJAHRE:
         reg_costs_vreg
     )
 
+    # Fuegt die soeben berechnete Jahreszeile der gemeinsamen Zeitreihe hinzu.
+    ZeitreihenErgebnisse.append(gesamtzeile)
+
     print("")
     print("Ergebnisse wurden geschrieben.")
+
+
+# Schreibt nach Abschluss aller Jahresdurchlaeufe eine gemeinsame Tabelle.
+write_time_series_crd_crr(ZeitreihenErgebnisse)
+print("")
+print("Zeitreihe wurde geschrieben: ergebnisse_zeitreihe_crd_crr.csv")
 

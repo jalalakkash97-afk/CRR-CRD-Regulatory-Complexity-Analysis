@@ -3,12 +3,43 @@
 import csv
 
 
+GESAMT_HEADER = [
+    "year",
+    "exp_ref_factor",
+    "number_articles",
+    "number_references",
+    "counter_missing",
+    "sum_operators",
+    "sum_reg_costs_vreg",
+    "largest_clump",
+    "counter_cycl_compl",
+    "counter_quantity",
+    "counter_math",
+    "num_with_ref",
+    "fres_index",
+    "fres_total_syllables",
+    "fres_total_words",
+    "fres_total_sentence",
+]
+
+
 def excel_zahl(wert):
     """Formatiert Zahlen so, dass deutsches Excel Dezimalzahlen richtig liest."""
 
     if isinstance(wert, float):
         return str(wert).replace(".", ",")
     return wert
+
+
+def write_time_series_crd_crr(zeitreihen_ergebnisse):
+    """Schreibt alle berechneten Jahresergebnisse in eine gemeinsame CSV-Datei."""
+
+    file_name = "ergebnisse_zeitreihe_crd_crr.csv"
+
+    with open(file_name, "w", newline="", encoding="utf-8-sig") as outfile:
+        writer = csv.writer(outfile, delimiter=";")
+        writer.writerow(GESAMT_HEADER)
+        writer.writerows(zeitreihen_ergebnisse)
 
 
 def write_output_crd_crr(
@@ -47,28 +78,11 @@ def write_output_crd_crr(
     with open(file_name, "w", newline="", encoding="utf-8-sig") as outfile:
         writer = csv.writer(outfile, delimiter=";")
 
-        writer.writerow([
-            "year",
-            "exp_ref_factor",
-            "number_articles",
-            "number_references",
-            "counter_missing",
-            "sum_operators",
-            "sum_reg_costs_vreg",
-            "largest_clump",
-            "counter_cycl_compl",
-            "counter_quantity",
-            "counter_math",
-            "num_with_ref",
-            "fres_index",
-            "fres_total_syllables",
-            "fres_total_words",
-            "fres_total_sentence"
-        ])
+        writer.writerow(GESAMT_HEADER)
 
-        writer.writerow([
+        gesamtzeile = [
             year,
-            exp_ref_factor,
+            excel_zahl(exp_ref_factor),
             len(ParagraphList),
             number_verweise,
             counter_missing,
@@ -83,7 +97,9 @@ def write_output_crd_crr(
             fres_total_syllables,
             fres_total_words,
             fres_total_sentence
-        ])
+        ]
+
+        writer.writerow(gesamtzeile)
 
     ######################################################################
     ######### Ausgabe der Artikeldatei fuer weitere Auswertungen #########
@@ -173,3 +189,7 @@ def write_output_crd_crr(
         writer.writerow(["}"])
 
     ######################################################################
+
+    # Gibt die zusammenfassende Zeile an main.py zurueck. Dort werden die
+    # Zeilen aller Beobachtungsjahre zur gemeinsamen Zeitreihe gesammelt.
+    return gesamtzeile
