@@ -2,6 +2,7 @@
 import numpy as np
 from functools import cmp_to_key
 import copy
+from pathlib import Path
 
 from einzelverweise import einzelverweise
 from einzelverweise_crd import einzelverweise_crd
@@ -33,23 +34,61 @@ from write_output_crd_crr import write_output_crd_crr
 (reg_operators,log_operators,math_operators) = load_operators()
 
 
+# Grundordner des Repositorys. Dadurch funktionieren die Textpfade unabhaengig
+# davon, auf welchem Computer das Programm ausgefuehrt wird.
+BASE_DIR = Path(__file__).resolve().parent
+CRD_TEXT_DIR = BASE_DIR / "Texte" / "CRD" / ".txt"
+CRR_TEXT_DIR = BASE_DIR / "Texte" / "CRR" / ".txt"
+
+# Fuer jedes Beobachtungsjahr wird die letzte bis zum Jahresende verfuegbare
+# konsolidierte Fassung der CRD und CRR festgelegt.
+TEXTFASSUNGEN = {
+    2013: ("6-226128148-en-226128148-17-07-2013.txt", "5-226128148-en-226128148-28-06-2013.txt"),
+    2014: ("6-226128148-en-226128148-20-03-2014.txt", "5-226128148-en-226128148-28-06-2013.txt"),
+    2015: ("6-226128148-en-226128148-01-01-2015.txt", "5-226128148-en-226128148-18-01-2015.txt"),
+    2016: ("6-226128148-en-226128148-01-01-2015.txt", "5-226128148-en-226128148-19-07-2016.txt"),
+    2017: ("6-226128148-en-226128148-01-01-2015.txt", "5-226128148-en-226128148-19-07-2016.txt"),
+    2018: ("6-226128148-en-226128148-09-07-2018.txt", "5-226128148-en-226128148-01-01-2018.txt"),
+    2019: ("6-226128148-en-226128148-09-07-2018.txt", "5-226128148-en-226128148-25-12-2019.txt"),
+    2020: ("6-226128148-en-226128148-29-12-2020.txt", "5-226128148-en-226128148-28-12-2020.txt"),
+    2021: ("6-226128148-en-226128148-28-06-2021.txt", "5-226128148-en-226128148-30-09-2021.txt"),
+    2022: ("6-226128148-en-226128148-01-01-2022.txt", "5-226128148-en-226128148-08-07-2022.txt"),
+    2023: ("6-226128148-en-226128148-01-01-2022.txt", "5-226128148-en-226128148-28-06-2023.txt"),
+    2024: ("6-226128148-en-226128148-30-12-2024.txt", "5-226128148-en-226128148-2024-07-09.txt"),
+    2025: ("6-226128148-en-226128148-17-01-2025.txt", "5-226128148-en-226128148-29-06-2025.txt"),
+}
+
+# Fuer den ersten kontrollierten Test werden nur zwei Jahre berechnet.
+# Nach erfolgreicher Kontrolle kann diese Liste auf range(2013, 2026) umgestellt werden.
+ANALYSEJAHRE = [2013, 2014]
+
 
 #######################################################################################################################
-for year in range(2013, 2014):
-    # Pfad zur CRD-Datei fuer das betrachtete Jahr.
-    crd_file_name = "C:/Users/jalal/OneDrive/Desktop/MASTERARBEIT/Texte/txt/CELEX_32013L0036_EN_TXT.txt"
-    # Pfad zur CRR-Datei fuer dasselbe Jahr.
-    crr_file_name = f"C:/Users/jalal/OneDrive/Desktop/MASTERARBEIT/Texte/CRR_Texte/CRR_{year}.txt"
+for year in ANALYSEJAHRE:
+    # Liest die fuer das Beobachtungsjahr festgelegten Dateinamen aus.
+    crd_datei, crr_datei = TEXTFASSUNGEN[year]
+
+    # Baut die vollstaendigen Pfade aus Repositoryordner und Dateinamen.
+    crd_file_name = CRD_TEXT_DIR / crd_datei
+    crr_file_name = CRR_TEXT_DIR / crr_datei
+
+    # Bricht mit einer klaren Meldung ab, falls eine zugeordnete Datei fehlt.
+    if not crd_file_name.is_file():
+        raise FileNotFoundError(f"CRD-Datei fuer {year} fehlt: {crd_file_name}")
+    if not crr_file_name.is_file():
+        raise FileNotFoundError(f"CRR-Datei fuer {year} fehlt: {crr_file_name}")
 
     # Kontrollausgabe: zeigt, welche CRD-Datei geladen werden soll.
-    print("CRD-Datei:", crd_file_name)
+    print("")
+    print("Beobachtungsjahr:", year)
+    print("CRD-Datei:", crd_file_name.name)
     # Kontrollausgabe: zeigt, welche CRR-Datei geladen werden soll.
-    print("CRR-Datei:", crr_file_name)
+    print("CRR-Datei:", crr_file_name.name)
 
     # Liest den kompletten CRD-Text als String ein.
-    CRD_Text = load_text(crd_file_name)
+    CRD_Text = load_text(str(crd_file_name))
     # Liest den kompletten CRR-Text als String ein.
-    CRR_Text = load_text(crr_file_name)
+    CRR_Text = load_text(str(crr_file_name))
 
     # Kontrollausgabe zur Plausibilitaet: Laenge des eingelesenen CRD-Texts.
     print("CRD-Textlaenge:", len(CRD_Text))
