@@ -1,0 +1,61 @@
+//extract only url without query params
+function extractUrlWithoutQueryParams(url){
+    const queryIndex = url.indexOf("?");
+    return queryIndex > 0 ? url.substring(0, queryIndex) : url;
+}
+
+//extract query params as a string (with ?) from url
+function extractQueryParams(url){
+    const queryIndex = url.indexOf("?");
+    return queryIndex > 0 ? url.substring(queryIndex) : "";
+}
+
+//get array of query parameters
+function getQueryParams(query){
+    return new URLSearchParams(query);
+}
+
+//extract search params from url
+function getSearchParams(url){
+    var queryParams = extractQueryParams(url);
+    return getQueryParams(queryParams);
+}
+
+//is query parameter available in url
+function hasQueryParam(url, parameterName){
+    var searchParams = getSearchParams(url);
+    return searchParams.has(parameterName);
+}
+
+//get query parameter value in url
+function getQueryParam(url, parameterName){
+    var searchParams = getSearchParams(url);
+    return searchParams.get(parameterName);
+}
+
+//process current url for adding new provided query param
+function addQueryParamToCurrentUrl(url, queryParamName, queryParamValue){
+    //get current url
+    var currentUrl = getQueryParam(url, 'amp;currentUrl');
+    //get only base url of the current url
+ 	var currentUrlRoot = extractUrlWithoutQueryParams(currentUrl);
+ 	//get only query params of the current url
+    var currentUrlQueryParams = getQueryParams(extractQueryParams(currentUrl));
+    //add pdf query param
+    currentUrlQueryParams.set(queryParamName, queryParamValue);
+    //returns the new encoded current url
+    return encodeURIComponent(`${currentUrlRoot}?${currentUrlQueryParams.toString()}`);
+}
+
+//EURLEXNEW-4574 method used to add pdf query param to the standalone view used in print-pdf
+function addPdfQueryParamForStandaloneView(url){
+  var urlRoot = extractUrlWithoutQueryParams(url);
+  var pageTitle = encodeURIComponent(getQueryParam(url, 'pageTitle'));
+  return `${urlRoot}?pageTitle=${pageTitle}&amp;currentUrl=${addQueryParamToCurrentUrl(url, 'pdf', true)}`;
+}
+
+function addPdfParamToStandaloneView(){
+    var originalURL = $(".PSPDF.EurlexTooltip").attr("href");
+    var modifiedURL = originalURL.concat("&pdf=true");
+    $(".PSPDF.EurlexTooltip").attr("href", modifiedURL);
+}

@@ -1,0 +1,138 @@
+//get relative path
+const relativePathEurlex = document.getElementsByName('app-relative-path')[0].content;
+
+//handler for year link
+$(".collectionTreeLink").on('click', function(event){
+
+    //prevent default
+    event.preventDefault();
+
+    //get attributes
+    let collectionId = $(this).attr('data-collection-id');
+    let year = $(this).attr('data-year');
+
+    //toggle class
+    let button = $(this).toggleClass("collapsed");
+
+    let isCollapsed = button.is('.collapsed');
+
+    //expand/collapse collection
+    expandByCollectionAndYear(collectionId, year, isCollapsed);
+
+});
+
+$(".collectionTreeMore").on('click', function(event){
+
+    //prevent default
+    event.preventDefault();
+
+    //get attributes
+    let collectionId = $(this).attr('data-collection-id');
+    let showMoreLabel = $(this).attr('data-show-more-label');
+    let showLessLabel = $(this).attr('data-show-less-label');
+
+    //set flag for expand/collapse state
+    let isCollapsed = $(this).text() === showMoreLabel;
+
+    //update text accordingly
+    $(this).text(isCollapsed ? showLessLabel : showMoreLabel);
+
+    //show or hide marked collapsable elements
+    let elementClass = `.leaf-${collectionId}-collapsable`;
+
+    if(isCollapsed){
+        $(elementClass).show();
+    }else{
+        $(elementClass).hide();
+    }
+});
+
+//Method for expand/collapse the inner collection
+async function expandByCollectionAndYear(collectionId, year, isCollapsed){
+
+    //generate inner element ID
+    let elementId = `#${collectionId}-${year}-collections`;
+    //check if inner elements do not exists
+    if(!$(elementId).length){
+        let collections = await getCollectionsFromServer(collectionId, year);
+        appendInnerCollections(collectionId, year, collections);
+    }
+    //toggle when is collapsed
+    if(isCollapsed){
+        $(elementId).hide();
+    }else{
+        $(elementId).show();
+    }
+}
+
+//Method for appending collection to upper element
+function appendInnerCollections(collectionId, year, collections){
+
+   let data = JSON.parse(collections) || [];
+   if(data.length > 0){
+       let html = `<ul class="browseTree" id="${collectionId}-${year}-collections">`;
+       data.forEach(item => {
+            html += displayCollectionLink(item);
+       });
+       html += '</ul>';
+       //append html to element
+       $(`#${collectionId}-${year}`).append(html);
+   }
+
+}
+
+//Method for generating a link
+function displayCollectionLink(item){
+    return `<li class="leaf"><a href="${relativePathEurlex}${item.uri}"><i class="fa fa-circle" aria-hidden="true"></i>${item.start} - ${item.end} ${item.year}</a></li>`;
+}
+
+//Method for getting collections from API
+async function getCollectionsFromServer(collectionId, year){
+
+    const url = `${relativePathEurlex}dynamic-js/browse-collection.json`;
+
+    let result = '[]';
+
+    try {
+        result = await $.ajax({
+            url: url,
+            type: 'GET',
+            data: {
+                collectionId: collectionId,
+                year: year
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        result = '[]';
+    }
+    return result;
+}
+
+//EURLEXNEW-4566 : method used to set the order criteria according to the selected sort criteria
+function onSortCriteriaChange(sortCriteriaId,formId){
+    //Sort criteria values and their subsequent sort order (daily view and session)
+    const sortCriteria = new Map()
+        //DAILY VIEW
+        .set('BY_CATEGORY', 'ASCENDING')
+        .set('BY_OJ', 'ASCENDING')
+        .set('BY_DATE', 'DESCENDING')
+        //SESSION
+        .set('OJ_STRUCTURE', 'ASCENDING')
+        .set('DOC_TYPE', 'ASCENDING')
+        .set('SITTINGS','DESCENDING');
+
+    //we get the sort criteria selected value
+    var selectedSortCriteria = $(`#${sortCriteriaId}`).find(':selected').val();
+    setOrderCriteria(sortCriteria.get(selectedSortCriteria));
+    //submit form after setting order criteria
+    $(`#${formId}`).submit();
+    showHourglass();
+}
+
+//method for setting the order criteria which will be passed to the form
+function setOrderCriteria(value){
+    if(value){
+        $('#orderCriterion').val(value);
+    }
+}

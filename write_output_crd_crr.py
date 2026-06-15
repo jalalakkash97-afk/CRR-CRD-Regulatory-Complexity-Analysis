@@ -22,6 +22,9 @@ def write_output_crd_crr(
     Reg_Operators_per_Paragraph,
     Reg_Operators_alone,
     FRESPara,
+    NumParaSent,
+    NumParaWords,
+    NumParaSylla,
     Klumpenparagraph,
     num_para,
     counter_cycl_compl,
@@ -97,18 +100,39 @@ def write_output_crd_crr(
             "unweighted_regulatory_operators",
             "operators_total",
             "fres",
+            "sentences",
+            "words",
+            "syllables",
+            "words_per_sentence",
+            "syllables_per_word",
             "number_internal_references",
             "complexity_with_references",
             "clump_size"
         ])
 
         for i in range(len(ParagraphList)):
+            # Kontrollgroessen fuer die FRES-Berechnung des aktuellen Artikels.
+            if NumParaSent[i] > 0:
+                words_per_sentence = NumParaWords[i] / NumParaSent[i]
+            else:
+                words_per_sentence = 0
+
+            if NumParaWords[i] > 0:
+                syllables_per_word = NumParaSylla[i] / NumParaWords[i]
+            else:
+                syllables_per_word = 0
+
             writer.writerow([
                 ParagraphList[i],
                 Reg_Operators_per_Paragraph[i],
                 Reg_Operators_alone[i],
                 Operators_per_Paragraph[i],
                 excel_zahl(FRESPara[i]),
+                NumParaSent[i],
+                NumParaWords[i],
+                NumParaSylla[i],
+                excel_zahl(words_per_sentence),
+                excel_zahl(syllables_per_word),
                 len(ParagraphVerweise[i]),
                 excel_zahl(reg_costs_vreg[i]),
                 len(Klumpenparagraph[i])

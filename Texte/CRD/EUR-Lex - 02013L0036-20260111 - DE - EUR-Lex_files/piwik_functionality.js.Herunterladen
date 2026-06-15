@@ -1,0 +1,268 @@
+$(window).on('load', function () { 
+	//EURLEXNEW-4131
+	var tocLoaded = false;
+	$('#tocBtn, #tocBtnMbl').on('click', function(evt) {		
+		tocLoaded = true;
+	});
+	
+    $('#RssFeedLinksList a').click(function (e) {
+      e.preventDefault();
+      var url = e.currentTarget.href;
+      navigateToHrefLocation(url, e);
+    });
+	
+    //EURLEXNEW-4131
+    // Catch document display/download click events and send the proper Piwik tags.
+    var documentDisplayAllUrlSelector = '.PubFormats .btn-group a';
+    var documentDisplayUrlSelectorEls = $(documentDisplayAllUrlSelector).not(".PubFormatVIEW > li > a")
+    documentDisplayUrlSelectorEls.click(function (e) {  	
+      e.preventDefault();
+      if (this.className != 'disabled') {
+        // Retrieve the English translation of the selected tab if it exists;
+        var selectedTabText = '';
+        var selectedTabSelector = '.AffixSidebarWrapper .Selected a';
+        if ($(selectedTabSelector).length > 0 && $(selectedTabSelector).siblings('input[id^=selectedTabEnglishTranslationID]').length > 0) {
+          selectedTabText = $(selectedTabSelector).siblings('input[id^=selectedTabEnglishTranslationID]').val()
+        }
+        var targetElementId = e.currentTarget.id;
+        var docLanguage = targetElementId.substring(targetElementId.lastIndexOf("_") + 1);
+        // Won't send undefined tag in case there is an issue detecting the selected tab (e.g due to the view of the site within google translate)        
+        if (selectedTabText && selectedTabText != '') {
+        	dataLayer.push({
+        		'event': 'analytics_interaction','event_type': 'docDisplay',
+        		'display_doc_tab': selectedTabText,
+        		'display_doc_action': 'Document Display',
+        		'display_type': docLanguage,
+        		});
+        }
+        navigateToHrefLocation(e.currentTarget.href, e);
+      }
+    });
+    
+    
+    //EURLEXNEW-4131
+    var allDocumentViewLinks = '#documentView a';
+    $(allDocumentViewLinks).not(documentDisplayUrlSelectorEls).not(".panel-heading a").not(function (id, el) {
+      // Ignore the links with hashes leading within the page.
+      return $(el)[0].outerHTML.indexOf("href=\"#") != -1;
+    }).click(function (e) {
+      // Retrieve the english translation of the selected tab if it exists;
+      var selectedTabText = '';
+      var selectedTabSelector = '.AffixSidebarWrapper .Selected a';
+      if ($(selectedTabSelector).length > 0 && $(selectedTabSelector).siblings('input[id^=selectedTabEnglishTranslationID]').length > 0) {
+        selectedTabText = $(selectedTabSelector).siblings('input[id^=selectedTabEnglishTranslationID]').val()
+      }
+      var targetElementId = e.currentTarget.id;
+      var docLanguage = targetElementId.substring(targetElementId.lastIndexOf("_") + 1);
+      // Won't send undefined tag in case there is an issue detecting the selected tab (e.g due to the view of the site within google translate)
+      if (selectedTabText && selectedTabText != '') {
+    	  dataLayer.push({
+      		'event': 'analytics_interaction','event_type': 'docDisplay',
+      		'display_doc_tab': selectedTabText,
+      		'display_doc_action': 'Link',
+      		'display_type': docLanguage,
+      		});
+      }
+    });
+    
+    //EURLEXNEW-4131
+    $('#ojBox #ojBoxBottom  li  a').not('.HomeOJMore a').click(function (e) {
+      e.preventDefault();
+      var DCSext_w_oj_box_doc_value = 'Official Journal of the European Union ' + e.target.innerText;
+      if (e.target.innerText) {
+    	dataLayer.push({
+    		  'event': 'analytics_interaction',		
+    		  'event_type': 'ojBox',
+    		  'oj_box_doc': DCSext_w_oj_box_doc_value
+    	});
+      }
+      navigateToHrefLocation(e.currentTarget.href, e);
+    });
+
+});
+
+//EURLEXNEW-4131
+var multilingualFormPiwikTracking = function (selectedTabText) {
+	var nbrOfLang = Number($('#MDLang1').val() != 'choose') + Number($('#MDLang2').val() != 'choose') + Number($('#MDLang3').val() != 'choose');
+	var displayType = '';
+	switch (nbrOfLang) {
+		case 1:
+			displayType = 'One Language';
+			break;
+		case 2:
+			displayType = 'Two Languages';
+			break;
+		case 3:
+			displayType = 'Three Languages';
+			break;
+		default:
+			displayType = '';
+	}
+
+	if ($('#documentView').length) {
+		if (selectedTabText && selectedTabText != '') {
+			 dataLayer.push({
+		      	'event': 'analytics_interaction',
+		      	'event_type': 'docDisplay',
+		      	'display_doc_tab': selectedTabText,
+		      	'display_doc_action': 'Multilingual Display',
+		      	'display_type': displayType,
+		      });
+		}
+		else {
+			dataLayer.push({
+		      	'event': 'analytics_interaction',
+		      	'event_type': 'docDisplay',
+		      	'display_doc_action': 'Multilingual Display',
+		      	'display_type': displayType,
+		      });
+		}
+	}
+	else {
+		dataLayer.push({
+	      	'event': 'analytics_interaction',
+	      	'event_type': 'docDisplay',
+	      	'display_type': displayType,
+	      });
+	}
+}
+
+
+//EURLEXNEW-4131
+function addPiwikParamsFromDirectAccessForm() {
+	//(Option for “Preparatory acts”)
+	if ($('.directAccessPreActsForm #directAccessSearch').length) {
+		var metadataFields;
+		var metadataValues;
+		if ($('#documentSelect').val() &&
+			$('#documentSelect').find('option:selected').val().toLowerCase() != "all") {
+			var docType = $('#documentSelect').val();
+			metadataFields = semicolonSeparatedWebTrendsTagConcatenation(metadataFields, "Type of Document");
+			metadataValues = semicolonSeparatedWebTrendsTagConcatenation(metadataValues, docType);
+		}
+		if ($('#docYear').val() &&
+			$('#docYear').find('option:selected').val().toLowerCase() != "all") {
+			var docYear = $('#docYear').val();
+			metadataFields = semicolonSeparatedWebTrendsTagConcatenation(metadataFields, "Year");
+			metadataValues = semicolonSeparatedWebTrendsTagConcatenation(metadataValues, docYear);
+		}
+		if ($('#docNum').val()) {
+			var docNum = $('#docNum').val();
+			metadataFields = semicolonSeparatedWebTrendsTagConcatenation(metadataFields, "Number");
+			metadataValues = semicolonSeparatedWebTrendsTagConcatenation(metadataValues, docNum);
+		}
+		if (metadataFields && metadataValues) {
+			dataLayer.push({
+				'event': 'analytics_interaction',		
+				'event_type': 'preparatoryActs',
+				'pre_acts_metadata_field':metadataFields,
+				'pre_acts_metadata_value': metadataValues,
+			});
+		}
+	}
+	//(Option for “Case-law”)
+	else if ($('.directAccessEuCaseLawForm #directAccessSearchEuCaseLaw').length) {
+		var metadataFields;
+		var metadataValues;
+
+		if ($('#naturalNumberType').find('option:selected').val() &&
+			$('#naturalNumberType').find('option:selected').val().toLowerCase() != "all") {
+			var court = $('#naturalNumberType').find('option:selected').val();
+			// Retrieve the English translation from the wt labels.
+			// Important: The value of the selected option of the dropdown will map to {given id} of the js-WTlabes.properties file holding the translations mappings.
+			metadataFields = semicolonSeparatedWebTrendsTagConcatenation(metadataFields, "Court");
+			metadataValues = semicolonSeparatedWebTrendsTagConcatenation(metadataValues, getWTLabel(court));
+		}
+
+		if ($('#documentSelect').find('option:selected').text()
+			&& $('#documentSelect').find('option:selected').val().toLowerCase() != "all") {
+			var docType = $('#documentSelect').find('option:selected').val();
+			metadataFields = semicolonSeparatedWebTrendsTagConcatenation(metadataFields, "Document type");
+			// Retrieve the English translation from the wt labels.
+			// Important: The value of the selected option of the dropdown will map to {given id} of the js-WTlabes.properties file holding the translations mappings.
+			metadataValues = semicolonSeparatedWebTrendsTagConcatenation(metadataValues, getWTLabel(docType));
+		}
+		if ($('#docNum').val()) {
+			var docNum = $('#docNum').val();
+			
+			metadataFields = semicolonSeparatedWebTrendsTagConcatenation(metadataFields, "Case number");
+			metadataValues = semicolonSeparatedWebTrendsTagConcatenation(metadataValues, docNum);
+		}
+		if ($('#docYear').val() &&
+			$('#docYear').find('option:selected').val().toLowerCase() != "all") {
+			var docYear = $('#docYear').val();
+			metadataFields = semicolonSeparatedWebTrendsTagConcatenation(metadataFields, "Year");
+			metadataValues = semicolonSeparatedWebTrendsTagConcatenation(metadataValues, docYear);
+		}
+		if (metadataFields && metadataValues) {
+			dataLayer.push({
+				'event': 'analytics_interaction',		
+				'event_type': 'preparatoryActs',
+				'pre_acts_metadata_field': metadataFields,
+				'pre_acts_metadata_value': metadataValues,
+			});
+		}
+	}
+}
+
+//EURLEXNEW-4589 Summary pages: Add Webtrends
+function addSummariesDocsToWebTrends(summaryDocLinks, topicCode, codeMap){    
+    window.dataLayer = window.dataLayer || [];
+    $(summaryDocLinks).click(function (e) {
+          e.preventDefault();
+                
+          let subtopicCode;            
+          if( typeof  $(this).closest(".firstLevel").siblings("a.firstLevel").prop("id") === 'undefined' ){
+            //Without subtopic or only with 1st level subtopic
+            let subtopic = $(this).closest(".storedSummarybrowseTreeLeaf").siblings("a.firstLevel");
+            subtopicCode = $(subtopic).length > 0 ? $(subtopic).prop("id").replace('arrow_','') : '';
+          }
+          else{        
+            //Nested links with many subtopics
+            subtopicCode = $(this).closest(".firstLevel").siblings("a.firstLevel").prop("id").replace('arrow_','');
+          }
+          //Validation before posting
+          let topic    = codeMap[topicCode];
+          let topicToPost = typeof topic === 'undefined' || topic.length == 0 ? '' : topic;          
+          let subtopic = codeMap[subtopicCode];
+          let subtopicToPost = typeof subtopic === 'undefined' || subtopic.length == 0 ? '' : subtopic;
+          let link     = $(this).attr("data-entitle");
+          let linkToPost = typeof link === 'undefined' || link.length == 0 ? '' : link;
+          
+          if (e.target.innerText) {
+            dataLayer.push({
+                'event': 'analytics_interaction',
+                'event_type': 'send_topic_metadata',
+                'topic': topicToPost,		
+                'subtopic': subtopicToPost,
+                'clicked_element': linkToPost
+            });
+          }
+          navigateToHrefLocation(e.currentTarget.href, e);
+    });
+}
+
+// specific help method for navigating to a specific href location. It also. checks if there is _blank target,
+//so as to open in new tab.
+function navigateToHrefLocation(url, e) {
+	// In case there is an attribute target="_blank", a new tab should be opened.
+	if (e.currentTarget.target == "_blank") {
+		window.open(url, '_blank');
+	}
+	// In all other cases (_self, _parent, _top, framename) for the moment, the URL is opened in the same window tab.
+	// NOTE: If a requirement, for any of the other cases, will come up for the  specific functionalities,
+	// a separate handling should be performed here.
+	else {		
+		window.location.href = url;
+	}
+}
+
+function semicolonSeparatedWebTrendsTagConcatenation(total, part) {
+	if (total) {
+		total = total + ";" + part;
+	}
+	else {
+		total = part;
+	}
+	return total;
+}

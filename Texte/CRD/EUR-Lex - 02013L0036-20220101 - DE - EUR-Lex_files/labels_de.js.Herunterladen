@@ -1,0 +1,13 @@
+var hideQueryLabel = 'Suche verbergen';
+var interStyleGuideLabel = 'Interinstitutionellen Regeln f\u00FCr Ver\u00F6ffentlichungen';
+var viewQueryLabel = '[Suche anzeigen]';
+var zoomingErrorLabel = 'Beim Hervorheben von Text-Metadaten ist ein Fehler aufgetreten.';
+var fileTooBigLabel = 'Die ausgew\u00E4hlte Datei ist zu gro\u00DF. Das Maximum ist 10.240 KB.';
+var allTheseWordsLabel = 'Alle diese Begriffe';
+var otherLinksLabel = 'Links';
+var zoomingTextMetadataLabel = 'Metadaten f\u00FCr das Hervorheben von Text';
+var noResults = 'Keine Treffer';
+var fullTextLabel = 'Textsuche';
+var legDraftLabel = 'Rechtsetzungstechnik';
+var celexBasicActLabel = 'The Celex id must begin with at least 5 numbers and a letter.';
+var relationInvalidLabel = 'Die CELEX-Nummer oder der Erg\u00E4nzungsteil einer Suche mit Beziehungen darf nicht mit einem Platzhalter (*, ?, +) beginnen.';

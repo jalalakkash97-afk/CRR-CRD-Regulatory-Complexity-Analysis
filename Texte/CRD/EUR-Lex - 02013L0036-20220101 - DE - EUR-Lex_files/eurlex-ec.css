@@ -1,0 +1,213 @@
+/* Stylesheet that contains ONLY the custom rules and necessary ovverides to the EC preset css rules,
+in order to achieve the desired view of EUR-Lex presentation layer */
+
+@media (min-width: 995px){
+    .upper-header-border{
+        border-bottom-style: solid;
+        border-width: thin;
+        border-color: #0099CC;
+    }
+}
+
+@media (max-width: 995px){
+    .upper-header-border{
+        border-bottom-style: solid;
+        border-width: thin;
+        border-color: #0099CC;
+        margin-bottom: 0.5rem;
+    }
+}
+
+.lower-header-border{
+    position: absolute;
+    width: 500%;
+    margin-left: -200%;
+    border-top: solid;
+    border-color: #0099CC;
+    border-top-width: 6px;
+}
+
+.site-name-tagline{
+    font-size: 15px;
+    line-height: 17px;
+    border-left-style: solid;
+    border-left-width: 4px;
+    border-left-color: #0099CC;
+    padding-left: 5px;
+    margin-top: 7px;
+}
+@media (max-width: 995px){
+    .site-header{
+        color: var(--c-d-80);
+    }
+}
+
+@media (max-width: 991px){
+    .blue-divisor-padding{
+        padding-top: 15px;
+    }
+}
+
+@media (min-width: 992px){
+    .header-refinement{
+        z-index: 10;
+        padding-bottom: 0;
+    }
+}
+
+@media (max-width: 991px){
+    .header-refinement{
+        padding-bottom: 0;
+    }
+}
+
+.ecl-container-padding-removal{
+    padding:0;
+    width: auto;
+    display: flex;
+    align-items: center;
+}
+@media (min-width: 997px){
+    .box-shadow-removal{
+        box-shadow:none !important;
+        height: 18.5rem !important;
+    }
+}
+@media (max-width: 998px){
+    .box-shadow-removal{
+        box-shadow:none !important;
+    }
+}
+
+.container-width{
+    width:100%;
+}
+
+.ecl-site-footer {
+    box-shadow: none;
+    border-top: 1px solid var(--c-p-20);
+    margin-top: 2.25rem;
+    margin-bottom: 1.25rem;    
+}
+
+.ecl-site-footer__section--separator {
+    border-top: 1px solid var(--c-p-20);
+    padding-top: var(--s-xs);
+    margin-top: var(--s-m);
+}
+
+.ecl-site-footer__container-override {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+/* Hide bottom line of 2nd row in footer (support older browsers) */
+div.ecl-site-footer__row:nth-of-type(2) {
+    border-bottom: none;
+}
+
+.ecl-site-footer__title, 
+.ecl-site-footer__title:focus, 
+.ecl-site-footer__title:hover, 
+.ecl-site-footer__title:visited {
+    font: var(--f-4xl);
+}
+
+.ecl-site-footer__description,
+.ecl-link, .ecl-link:visited {
+    font: var(--f-xl);
+    font-family: "Roboto","Segoe UI","Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.ecl-link--icon--twitter {
+    margin-right: var(--s-xs);
+}
+
+.ecl-link__label--twitter {
+    margin-inline-start: calc(var(--s-xs)*-1);
+}
+
+.header-width-override{
+    width: auto;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.eu-logo-size{
+    height:5.5rem;
+}
+
+.login-lang-image-size{
+    width:2.5rem !important;
+    height:2.5rem !important;
+    fill: var(--ecl-color-info, #0E47CB);
+}
+
+.login-lang-text-size{
+    color: var(--ecl-color-info);
+    font-size: 1.25rem !important;
+}
+
+.lang-panel-close{
+    color: var(--ecl-color-info);
+    margin-right:5px;
+}
+
+.lang-box-divisor{
+    margin-left: -15px;
+    margin-right: -15px;
+}
+
+.ef-questionmark-icon{
+    width: 16px !important;
+    height: 16px !important;
+    fill: #1971A1;
+    display: flex;
+}
+
+.header-link{
+    color: var(--c-d-80);
+}
+
+.header-link:hover, .header-link:focus{
+    color: var(--c-d-80);
+    text-decoration: none;
+}
+
+
+@media (min-width: 992px) and (max-width: 995px){
+    .blue-horizontal-margin{
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 1280px){
+    .left-right-padding{
+       padding-left: 1.5rem;
+       padding-right: 1rem;
+    }
+}
+
+.bottom-header-padding{
+    padding-bottom: 0;
+}
+
+@media (min-width: 992px) and (max-width: 995px){
+    .breadcrumbs-padding{
+        padding-top: 1rem;
+    }
+}
+
+@media (min-width: 995px) {
+	.ecl-site-header__site-name {
+        color: var(--c-d-80);  /* description text visibility */
+        padding: var(--s-m) 0; /* thin blue line border */
+    }
+}
+
+#eurlex-logo-text-size {
+    font-size: 32px !important;
+}

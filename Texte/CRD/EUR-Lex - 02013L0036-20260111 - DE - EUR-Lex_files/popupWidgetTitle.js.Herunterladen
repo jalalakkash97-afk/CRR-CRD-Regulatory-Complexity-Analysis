@@ -1,0 +1,124 @@
+/*
+ *
+ *            PROJECT : EUR-Lex
+ *
+ *            PACKAGE : eu.europa.ec.opoce.eurlex
+ *               FILE : popupWidgetTitle.js
+ *
+ *         CREATED BY : European Dynamics
+ *                 ON : 6 October 2017
+ *
+ *        MODIFIED BY: European Dynamics
+ *             	 ON: $LastChangedDate$
+ *            VERSION: $LastChangedRevision$
+ *
+ *   ----------------------------------------------------------------------
+ *   Copyright (c) 2017 European Commission - OP
+ *   ----------------------------------------------------------------------
+ *
+ */
+
+var celexLinkPattern = /uri=celex:(\d)(\d{4})([a-zA-Z]{1,2})(\d{3,4}|\/TXT)?((R)?(\(\d{2}\))|-\d{8})?/i;
+var celexPattern = /^(\d)(\d{4})([a-zA-Z]{1,2})(\d{3,4}|\/TXT)?((R)?(\(\d{2}\))|-\d{8})?/;	//starts with celex
+
+/** Method for ajax request to "request-title.html" after "n" ms delay.
+ * As a response it returns title of selected celex document link which is displayed in a tooltip
+ */
+function popUpWidget(url, lang, delay) {
+    var timer;
+    $('a').hover(function () { // on mouse in, start a timeout
+        var content = this.innerHTML;
+        var selectedLink = $(this);
+		var href = $(this).attr("href");
+		var contentIsCelex = celexPattern.test(content);	//check link text against celex regex
+		// Additional check for when the celex is translated (EURLEXNEW-4311)
+		var dataCelex = $(this).attr("data-celex");
+		var dataIsCelex = (dataCelex) && celexPattern.test(dataCelex);
+		
+        timer = setTimeout(function () {
+            if ((contentIsCelex || dataIsCelex) && !selectedLink.hasClass("EurlexTooltip")) {	//is applicable and no tooltip already appended.
+				//celex number should be retrieved from href as text is not always reliable
+				var match = celexLinkPattern.exec(href);
+				var celexNumber = match[0].substring(match[0].lastIndexOf(':') + 1);
+				
+                $.ajax({
+                    url: url + "request-title.html",
+                    cache: false,
+                    data: {
+                        celex: celexNumber,
+                        lng: lang.toUpperCase()
+                    },
+                    success: function (response) {
+                    	if (selectedLink.is(":hover")) {
+	                        var title = response.title;
+	                        createTooltip(selectedLink,title);
+                    	}
+                    }
+                });
+            }
+        }, delay);
+    }, function () {
+        // on mouse out, cancel the timer
+        clearTimeout(timer);
+    })
+}
+
+/** Method for ajax request to "request-title.html"
+ * As a response it returns title of selected celex document link which is displayed in a tooltip
+ * Ajax request is triggered only when tab is pressed, intended for keyboard users with screen readers
+ */
+function popUpWidgetAccessible(url, lang) {
+    $('a').on('keyup', function (e) {
+        //if TAB key is pressed
+        if (e.which == 9) {
+            var content = this.innerHTML;
+            var selectedLink = $(this);
+			var href = $(this).attr("href");
+			var contentIsCelex = celexPattern.test(content);	//check link text against celex regex
+			// Additional check for when the celex is translated (EURLEXNEW-4311)
+			var dataCelex = $(this).attr("data-celex");
+			var dataIsCelex = (dataCelex) && celexPattern.test(dataCelex);
+		
+            if ((contentIsCelex || dataIsCelex) && !selectedLink.hasClass("EurlexTooltip")) {	//is applicable and no tooltip already appended.
+				//celex number should be retrieved from href as text is not always reliable
+				var match = celexLinkPattern.exec(href);
+				var celexNumber = match[0].substring(match[0].lastIndexOf(':') + 1);
+				
+                $.ajax({
+                    url: url + "request-title.html",
+                    cache: false,
+                    data: {
+                        celex: celexNumber,
+                        lng: lang.toUpperCase()
+                    },
+                    success: function (response) {
+                    	if (selectedLink.is(":focus")) {
+	                        var title = response.title;
+	                        createTooltip(selectedLink,title);
+                    	}
+                    }
+                });
+            }
+        }
+    });
+}
+
+/** Method for creating, initialising and displaying tooltip
+ */
+function createTooltip(celexLink,tooltipText){
+    //Add tooltip to celex link
+    celexLink.addClass("EurlexTooltip");
+    celexLink.attr("data-toggle", "tooltip");
+    celexLink.attr("title", tooltipText);
+    //initialize tooltip
+    $('.EurlexTooltip').tooltip({
+    //Displaying long tool-tip value
+    'selector': '',          //This is used to enable dynamic HTML content to have popovers added
+    'placement': 'top',      //Tooltip position
+    'container': 'body'      //To avoid rendering problems in more complex components (like our input groups, button groups, etc).
+    });
+    //Show tooltip
+    celexLink.tooltip('show');
+}
+
+

@@ -1,0 +1,23 @@
+var WTLabels = {
+'nextMonth' : 'Folgemonat', 
+'all' : 'All', 
+'naturalNumber.civilServiceTribunal' : 'Civil Service Tribunal', 
+'nextDecade' : 'N\u00E4chstes Jahrzehnt', 
+'naturalNumber.court' : 'General Court', 
+'prevDecade' : 'Vorheriges Jahrzehnt', 
+'naturalNumber.courtOfJustice' : 'Court of Justice', 
+'opinion' : 'Opinion', 
+'garnisheeOrder' : 'Attachment order', 
+'thirdParty' : 'Third-party proceedings', 
+'selectMonth' : 'Monat ausw\u00E4hlen', 
+'judgment' : 'Judgment', 
+'prevMonth' : 'Vormonat', 
+'today' : 'Heutigen Tag w\u00E4hlen', 
+'selectYear' : 'Jahr ausw\u00E4hlen', 
+'nextYear' : 'N\u00E4chstes Jahr', 
+'prevYear' : 'Voriges Jahr', 
+'judicialInfo' : 'Judicial information', 
+'close' : 'Fenster schlie\u00DFen', 
+'advGeneral' : 'Advocate General\u2019s opinion', 
+'order' : 'Order'
+};

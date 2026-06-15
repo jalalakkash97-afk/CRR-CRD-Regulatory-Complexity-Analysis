@@ -1,0 +1,146 @@
+
+  var pdfComponent = (function (componentId, pdfUrl,internalUrl) {
+
+
+      var  currentPdfServiceBaseUrl = internalUrl + "dynamic-js"
+
+
+      var listElm = document.querySelector('#infinite-list-'+componentId);
+
+        var isLoading = false;
+        var xhrOverride = new XMLHttpRequest();
+        xhrOverride.responseType = 'arraybuffer';
+
+        var requestPdf = function (pageNumber) {
+            let serviceUrl = currentPdfServiceBaseUrl + "/document-fragment?pageNumber=" + pageNumber + "&pdfUrl="+pdfUrl;
+
+            $.ajax({
+                url: serviceUrl,
+                xhr: function () {
+                    return xhrOverride;
+                },
+                success: function (data, textStatus, xhr) {
+                    let byteArray = new Uint8Array(data)
+                    var file = new Blob([byteArray], { type: 'application/pdf' });
+
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        var dataUrl = reader.result;
+                        var base64 = dataUrl.split(',')[1];
+
+                        buildElement(base64);
+                        showContentInfo()
+                    };
+                    reader.readAsDataURL(file);
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log("Pdf fragment request failed: " + textStatus + ", " + errorThrown);
+                    currentPage--;
+                    isLoading = false;
+                }
+            });
+
+        }
+
+        function buildElement(pdfBase64) {
+            var pdfData = atob(pdfBase64);
+            var pdfjsLib = window['pdfjs-dist/build/pdf'];
+            // The workerSrc property shall be specified.
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs-dist/build/pdf.worker.js';
+            // Using DocumentInitParameters object to load binary data.
+            var loadingTask = pdfjsLib.getDocument({ data: pdfData });
+
+            loadingTask.promise.then(function (pdf) {
+
+                var pageNumber = 1;
+                pdf.getPage(pageNumber).then(function (page) {
+
+                    const isScrolledToBottom = listElm.scrollHeight - listElm.clientHeight <= listElm.scrollTop + 1;
+
+                    var scale = 2.0;
+                    var viewport = page.getViewport({ scale: scale });
+
+                    var canvas = document.createElement('canvas');
+                    var context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    canvas.style = " margin-bottom:1px; direction: ltr; width: 100%;"
+
+                    var previousBoxHeight = $('#infinite-list-'+componentId).height();
+                    listElm.appendChild(canvas);
+
+                    if(previousBoxHeight===0){
+                        listElm.style.height = ($('#infinite-list-'+componentId).height()*.9) +"px";
+                    }
+
+                    var renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    var renderTask = page.render(renderContext);
+                    renderTask.promise.then(function () {
+
+                        isLoading = false;
+                        var content = $('#infinite-list-'+componentId);
+
+                        if (isScrolledToBottom) {
+                            content.animate({ scrollTop: listElm.scrollHeight - content.height() - (content.height() * .9) }, 1000);
+                        }
+
+                    });
+                });
+            }, function (reason) {
+                console.error(reason);
+                currentPage--;
+                isLoading = false;
+            });
+        }
+
+        var currentPage = 0;
+        var totalPages = 0;
+        var loadMore = function () {
+            if(currentPage > 0 && currentPage === totalPages){
+                return;
+            }
+            currentPage++;
+            requestPdf(currentPage);
+        }
+
+        function showContentInfo() {
+            $('#content-info-'+componentId).text(currentPage + "/" + totalPages);
+        }
+
+        function showContentInfoError() {
+            $('#content-info-'+componentId).text("Pdf not available.");
+        }
+
+        listElm.addEventListener('scroll', function () {
+            if (!isLoading && Math.ceil(listElm.scrollTop + listElm.clientHeight) + 1 >= listElm.scrollHeight) {
+                isLoading = true;
+                loadMore();
+            }
+        });
+
+        function loadPdfInfo() {
+            let serviceUrl = currentPdfServiceBaseUrl + "/pdf-info?pdfUrl="+pdfUrl;
+            $("#btn-generate-pdf").remove();
+            $.ajax({
+                url: serviceUrl,
+                type: 'GET',
+                success: function (data) {
+                    totalPages = parseInt(data);
+                    showContentInfo();
+                    loadMore();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error:', errorThrown);
+                    showContentInfoError();
+                }
+            });
+
+
+        }
+        loadPdfInfo();
+
+    });

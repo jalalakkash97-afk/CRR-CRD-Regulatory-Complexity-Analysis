@@ -1,0 +1,274 @@
+const COMPATIBILITY_TABLE_CACHE = 'compatibility-table-cache';
+const COMPATIBILITY_TABLE_JSON_URI = 'dynamic-js/config-compatibility-table.json';
+const META_RELATIVE_PATH = 'app-relative-path';
+const CURRENT_YEAR = 'CURRENT_YEAR';
+let compatibilityTable = {};
+var ojYear;
+var abaYear;
+var collOj;
+var subDomain;
+var allTranslatedText;
+var series;
+var year;
+var idYearDropdown;
+var idSeriesDropdown;
+
+function loadCompatibilityTable(callback){
+
+    getCompatibilityTable().then(data => {
+        compatibilityTable = data;
+        callback();
+    });
+
+};
+
+async function getCompatibilityTable(){
+
+    let json = {};
+    const relativePath = document.getElementsByName(META_RELATIVE_PATH)[0].content;
+    const url = relativePath + COMPATIBILITY_TABLE_JSON_URI;
+
+    if('caches' in window){
+        console.log('Open an instance of Cache API');
+
+        try{
+            const newCache = await caches.open(COMPATIBILITY_TABLE_CACHE);
+            const response = await newCache.match(url);
+
+            if(response){
+
+                //check if cache is too old
+                const isoTimeCached = response.headers.get('timecached');
+                const timeCached = new Date(isoTimeCached);
+                console.log(`Last compatibility table time cached : ${isoTimeCached}`);
+
+                //EURLEXNEW-4707 : if cache older than 1 day, reload from server
+                if(Date.now() > addMinutes(timeCached, 1440)){
+                    let tempData = await getCompatibilityTableFromServer(url);
+                    json = compatibilityTableToObject(tempData);
+                    //we must pass data as string
+                    newCache.put(url, cloneResponseWithTimeCached(tempData));
+                    console.log('Cache too old. Get from server');
+                }else{
+                    // we get the stream as an object
+                    json = await response.json();
+                    console.log('Compatibility table is in Cache.');
+                }
+
+            }else{
+                let tempData = await getCompatibilityTableFromServer(url);
+                json = compatibilityTableToObject(tempData);
+                //we must pass data as string
+                newCache.put(url, cloneResponseWithTimeCached(tempData));
+                console.log('Compatibility table is not in Cache. Get from server');
+            }
+        }catch(e) {
+            //in case there is browser issue (e.g. Firefox with Https) we get from server
+            let tempData = await getCompatibilityTableFromServer(url);
+            json = compatibilityTableToObject(tempData);
+            console.log(e);
+        }
+
+    }else{
+        let tempData = await getCompatibilityTableFromServer(url);
+        json = compatibilityTableToObject(tempData);
+        console.log('Cache API not available, get compatibility table from server');
+    }
+
+    return json;
+}
+
+//method for adding minutes to the provided date
+function addMinutes(date, minutes){
+    date.setMinutes(date.getMinutes() + minutes);
+    return date;
+}
+
+//method for cloning a response and adding time cached to headers
+function cloneResponseWithTimeCached(data){
+    const headers = new Headers();
+    const nowTime = Date.now();
+    const today = new Date(nowTime);
+    headers.set('timecached', today.toISOString());
+    return new Response(data, {
+        headers: headers
+    });
+}
+
+function compatibilityTableToObject(data){
+    return JSON.parse(data);
+}
+
+async function getCompatibilityTableFromServer(url){
+    let result = "{}";
+
+    try {
+        result = await $.ajax({
+            url: url,
+            type: 'GET'
+        });
+    } catch (error) {
+        console.error(error);
+    }
+    return result;
+}
+
+
+
+	/**
+	 * returns min max year range based on what the oj series is.
+	 */
+	function getYearRangeForOjSeries(ojSerie) {
+		if(!ojSerie || ojSerie == 'ALL') {
+			return {
+				end: compatibilityTable.end,
+				start: compatibilityTable.start
+			};
+		}
+		var ojSerieName = ojSerie.replace('oj-','').toUpperCase();
+		var oj = compatibilityTable.collOjs.filter(x=>x.name == ojSerieName[0]).map(x=>x.classOjs).flat().find(x=>x.name === (ojSerieName.length === 1 ? 'R' : ojSerieName[1]));
+		return {
+			end:oj.end == CURRENT_YEAR ? parseInt(new Date().getUTCFullYear()) : parseInt(oj.end),
+			start:parseInt(oj.start)
+		};
+	}
+	
+	
+	/**
+	 * populates the year dropdown with range from yearRange.start to
+	 * yearRange.end
+	 */
+	function populateYearDropdown(yearRange) {
+		$('#ojYears').empty();
+		appendAllYears();
+		while(yearRange.start <= yearRange.end) {
+			$('#ojYears').append($('<option>', {
+		  	   	value:  yearRange.end.toString(),
+		  		text:  yearRange.end.toString()
+		  	}));
+			yearRange.end--;
+		}
+	}
+	
+	
+	/**
+	 * populates the oj series dropdown with pre-selected values for the selected subDomain
+	 * 
+	 * NOTE todo: once a label is added to ojSeries, set text with text:ojSeries.label
+	 */
+	function populateOjSeriesDropdown(ojSeries) {
+		$('#ojSeries').empty();
+		appendAllSeries();
+		ojSeries.forEach((ojSerie) => {
+			$('#ojSeries').append($('<option>', {
+		  	   	value: 'oj-'+ojSerie.name.toLowerCase(),
+		  		text: ojSerie.name+' ('+ojSerie.start + ' - ' + ojSerie.end + ')'
+		  	}));
+		});
+	}
+	
+  	
+  	/**
+  	*  Given the selected subDomain will generate the OJ series excluding from subDomain.excludedOjCols
+  	*  Returns oj series array for the given subDomain parameter.
+  	*  eg array format: [{name:'CA',start:'2010',end:'2022'}]
+  	*  
+  	*  NOTE todo: once a label is added to collOj.classOjs ,included it to return object as well.
+  	**/
+  	function getOjSeriesForSubDomain(subDomain) {
+  		var ojSeries = [];
+  		compatibilityTable.collOjs.forEach((collOj) => {
+  			collOj.classOjs.forEach((classOj) => {
+  				var ojSerie = {name:(classOj.name == 'R' ? collOj.name : (collOj.name + classOj.name)),
+  						start:classOj.start,end:(classOj.end == CURRENT_YEAR ? new Date().getUTCFullYear().toString() : classOj.end)};
+  				if(subDomain.excludedOjCols) {
+  					if(!subDomain.excludedOjCols.includes(ojSerie.name)) {
+  						ojSeries.push(ojSerie);
+  					}
+  				} else {
+  					ojSeries.push(ojSerie);
+  				}
+  			});
+  		}); 		
+  		return ojSeries;
+  	}
+  	
+	
+	//append default ALL option for the given 'select' id. The translated value of ALL is taken from specialEditionLanguage
+	function appendDefaultAllById(id) {	
+		$(id).append($('<option>', {
+			 value: 'ALL',
+			 text: allTranslatedText,
+			 selected:''
+		}));
+	}
+	
+	
+	function appendAllSeries() {
+		$('#ojSeries').off('change');
+		appendAll('#ojSeries');
+		$('#ojSeries').on('change',ojSeriesOnChange);
+	}
+	
+	function appendAllYears() {
+		$('#ojYears').off('change');
+		appendAll('#ojYears');
+		$('#ojYears').on('change',ojYearsOnChange);
+	}
+	
+	function appendAll(id) {
+	    if(allTranslatedText){
+            $(id).append($('<option>', {
+                 value: 'ALL',
+                 text: allTranslatedText,
+                 selected:''
+            }));
+		}
+	}
+	
+	function ojSeriesOnChange() {
+        if(idYearDropdown){
+        		var selectedYear = $(idYearDropdown).children('option:selected').val();
+        }
+		populateYearDropdown(getYearRangeForOjSeries($(idSeriesDropdown).children("option:selected").val()));
+		$(idYearDropdown).off('change');
+		if($(idYearDropdown +" option[value='"+selectedYear+"']").val()) {
+  			$(idYearDropdown).val(selectedYear).change();
+  		}
+		$(idYearDropdown).on('change',ojYearsOnChange);
+	}
+	
+	function ojYearsOnChange() {
+        if(idYearDropdown){
+		    var yearVal = parseInt($(idYearDropdown).children("option:selected").val());
+		}
+		if(isNaN(yearVal) && year){
+		    yearVal = year;
+		}
+		var abaYearVal;
+		if(abaYear){
+		    abaYearVal = parseInt(abaYear);
+		}
+		if(Number.isInteger(yearVal) && yearVal >= abaYearVal) {
+			$( "#firstPageInOj" ).val('');
+			$( "#firstPageInOj" ).prop( "disabled", true );
+		} else {
+			$( "#firstPageInOj" ).prop( "disabled", false );
+		}
+		var selectedSerie = $(idSeriesDropdown).children('option:selected').val();
+        if(subDomain){
+            populateOjSeriesDropdown(getOjSeriesForSubDomain(compatibilityTable.subdomains.find(x=>x.code == subDomain))
+                .filter(x => $(idYearDropdown).val() == 'ALL' || (parseInt($(idYearDropdown).val())  >= parseInt(x.start)  && parseInt($(idYearDropdown).val()) <=  parseInt(x.end))));
+        }
+		$(idSeriesDropdown).off('change');
+		if($(idSeriesDropdown+" option[value='"+selectedSerie+"']").val()) {
+  			$(idSeriesDropdown).val(selectedSerie).change();
+  		}
+  		ojSeriesOnChange();
+		$(idSeriesDropdown).on('change',ojSeriesOnChange);
+	}
+
+
+window.onload = function() {
+  loadCompatibilityTable(ojYearsOnChange);
+};

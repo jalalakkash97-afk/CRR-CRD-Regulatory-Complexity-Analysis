@@ -1,0 +1,13 @@
+
+
+    .infinite-list {
+        overflow: auto !important;
+        background-color: gray;
+        border: 1px solid black;
+        transform-origin: 0 0;
+    }
+
+    .content-info {
+        font-size: 10px;
+        color: #097eaa;
+    }

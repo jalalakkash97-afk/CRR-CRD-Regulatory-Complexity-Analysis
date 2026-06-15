@@ -1,0 +1,171 @@
+/**
+ * Js code for experimental features functionality
+ */
+
+/**
+ * Check/uncheck the parent 'select all checkbox' depending if all child checkboxes are checked or not
+ */
+function onCheckboxCategoryChecked() {
+	$('#ef-checkbox').prop('checked',$('#experimental-features-inner-items :checkbox:checked').length>0);
+}
+/**
+ * check/Uncheck the efs checkboxes ( child checkboxes)  depending if they are enabled/disabled
+ */
+function checkUncheck(item) {
+	if(readCookie("experimentalFeatures").includes(item)){
+		$('#experimentalFeatureCheckbox_'+item+'').prop('checked',true);
+	}else {
+		$('#experimentalFeatureCheckbox_'+item+'').prop('checked',false);
+	}
+}
+/**
+ * if none of the EFs are activated  Uncheck the homepage checkbox and the child checkboxes  ELSE uncheck before apply
+ */
+function onCloseUncheck(){
+	const efs = ["EF01", "EF02", "EF03"];
+	if (readCookie("experimentalFeaturesActivated") == "false") {
+		$('#ef-checkbox').prop('checked',false);
+		$('.exp-feature-child-checkbox').prop('checked',false);
+	}
+	else {
+		$('#ef-checkbox').prop('checked',true);
+		efs.forEach(checkUncheck);
+
+	}
+}
+
+/**
+ * checkes/unchecks the parent checkbox depending if all child chechboxes are checked.
+ * @param e the child checkbox
+ */
+function checkExpFeatureChildCheckboxes(e) {
+	if(e) {
+		var total = $(e).closest('ul').find(':checkbox');
+		var totalChecked = $(e).closest('ul').find(':checkbox:checked');
+		if(total && totalChecked) {
+			$(e).parent().parent().parent().parent().find('.exp-feature-category-checkbox').prop('checked',total.length == totalChecked.length);
+			onCheckboxCategoryChecked();
+		}
+	}
+}
+
+
+/**
+ * checks if there is a conflict between the checked experimental feature checkboxes, and
+ * toggles the found toggle checkbox/s alert-warning class.
+ * @param items all the experimental feature conflicts.
+ */
+function checkExperimentalFeaturesConflicts(items) {
+	if(items) {
+		var checkboxes = [];
+		$(".exp-feature-child-checkbox").each(function(){
+			$(this).parent().toggleClass("text-danger",false);
+			if($(this).is(":checked")) {
+				checkboxes.push($(this));
+			}
+		});
+		var conflictFound = false;
+		for(var s = 0; s < checkboxes.length; s++){
+			if(items[checkboxes[s].val()]) {
+				var ls = items[checkboxes[s].val()];
+				for(var i =0;i < ls.length; i++) {
+					for(var x = 0; x < checkboxes.length; x++) {
+						if(checkboxes[x].val() == ls[i]) {
+							conflictFound = true;
+							$(checkboxes[x]).parent().toggleClass("text-danger",true);
+							$(checkboxes[s]).parent().toggleClass("text-danger",true);
+						}
+					}
+				}
+			}
+			$("#exp-feautre-js-warning-box").toggleClass("hidden",!conflictFound);
+		}
+	}
+}
+
+/**
+ * Called once when document ready to initialize the listeners
+ * @param conflicts all the saved/registered conflicts
+ * @param experimentalFeatureChildCheckboxesItems all the experimental feature checkboxes
+ * @param isFeedbackGiven if feedback is given
+ * @returns void
+ */
+function initializeFloatingBox(conflicts,experimentalFeatureChildCheckboxesItems,isFeedbackGiven,codes) {
+	$("#ef-checkbox, #experimental-feature-close").click(function() {$('.exp-feature-float-box').slideToggle();});
+	if(isFeedbackGiven == "false") {
+		createCookie("feedbackGiven",null,30);
+		setTimeout(function(){
+			$('#link-give-feedback')[0].click();
+		},750);
+	}
+	$('#ef-checkbox').change(function() {
+		// $("#experimental-features-inner-items input:checkbox").prop('checked',this.checked);
+		checkExperimentalFeaturesConflicts(conflicts);
+	});
+	$('#experimental-features-inner-items').change(function(){
+		checkExperimentalFeaturesConflicts(conflicts);
+		onCheckboxCategoryChecked();
+	});
+	$('.exp-feature-child-checkbox').change(function(){
+		checkExpFeatureChildCheckboxes(this);
+		checkExperimentalFeaturesConflicts(conflicts);
+	});
+	$("#experimental-feature-close").click(function (){
+		updateCheckboxState();
+	});
+	$("#ef-checkbox").click(function (){
+		onCloseUncheck();
+	});
+	//INIT checkboxes state on page load
+	if(experimentalFeatureChildCheckboxesItems) {
+		for(cb in experimentalFeatureChildCheckboxesItems) {
+			checkExpFeatureChildCheckboxes(cb);
+		}
+	}
+}
+
+/**
+ * Checks if an experimental feature should be executed based on its status.
+ * @param efCode the code of the experimental feature to check
+ * @returns true if should run, false otherwise
+ */
+function shouldRunExperimentalFeature(efCode) {
+	if ($.isEmptyObject(allExperimentalFeaturesStatus)) {
+		return false;
+	}
+	var status = allExperimentalFeaturesStatus[efCode];
+	if (status == null || status == "DEACTIVATE") {
+		return false;
+	}
+	else if (status == "IMPLEMENT") {
+		return true;
+	}
+	else if (status == "EXPERIMENT") {
+		if (readCookie("experimentalFeaturesActivated") == "true") {
+			return readCookie("experimentalFeatures").includes(efCode);
+		}
+		else {
+			return false;
+		}
+	}
+}
+// Get all the inner checkboxes
+var innerCheckboxes = document.querySelectorAll(".exp-feature-child-checkbox");
+var checkbox = document.getElementById("ef-checkbox");
+// Function to check if any inner checkbox is checked
+function anyInnerCheckboxChecked() {
+	for (var i = 0; i < innerCheckboxes.length; i++) {
+		if (innerCheckboxes[i].checked) {
+			return true;
+		}
+	}
+	return false;
+}
+// Function to update the state of the main checkbox
+function updateCheckboxState() {
+	if (anyInnerCheckboxChecked()) {
+		checkbox.checked = true; // Check the checkbox
+	} else {
+		checkbox.checked = false; // Uncheck the checkbox
+	}
+}

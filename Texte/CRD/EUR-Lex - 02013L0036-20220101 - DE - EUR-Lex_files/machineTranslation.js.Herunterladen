@@ -1,0 +1,365 @@
+/*
+ *
+ *            PROJECT : EUR-Lex
+ *
+ *            PACKAGE : eu.europa.ec.opoce.eurlex
+ *               FILE : machineTranslation.js
+ *
+ *         CREATED BY : European Dynamics
+ *                 ON : 28 November 2017
+ *
+ *        MODIFIED BY: European Dynamics
+ *             	 ON: $LastChangedDate$
+ *            VERSION: $LastChangedRevision$
+ *
+ *   ----------------------------------------------------------------------
+ *   Copyright (c) 2017 European Commission - OP
+ *   ----------------------------------------------------------------------
+ *
+ */
+
+//NIM tab (e.g. /legal-content/EN/NIM/?uri=CELEX:32008L0114) translates the titles of NTM's using machine translation asynchronously
+function sendTitleTranslationNimTab(country, url, translationRetryTime){
+	//target language from dropdown & original text
+	var targetLang = $("#" + country + "_MT_languageSelect option:selected" ).val();
+
+	var rows = $("." + country + "_ntm");
+    var numOfTranslations = rows.length; //number of translations expected.
+    var requestUrl = url+ "mtatec/sendTranslation";
+    var translationUrl = url + "mtatec/getTranslation";
+		
+	$("#" + country + "_MT_button").button('loading');	
+    $("#" + country + "_MT_languageSelect").attr("disabled", true);
+
+    //For each Ntm title. NOTE: Do not use i < numOfTranslations
+    for (var i = 0; i < rows.length; i++)(function(i){
+        var title = $(rows[i]).find("#originalTitle").html();
+        var lang = $(rows[i]).find("#language").html();
+        if(! $(rows[i]).find("#" + country + "_" + lang.toUpperCase() + "_errorMessage").hasClass('hidden') ) {
+            $(rows[i]).find("#" + country + "_" + lang.toUpperCase() + "_errorMessage").addClass('hidden');
+        }
+
+        if(lang.toUpperCase() != targetLang.toUpperCase()){ //target language must differ from input language
+            var myJSONTimeout;
+            clearTimeout(myJSONTimeout);
+            myJSONTimeout = window.setTimeout(function(){	//send request to apply for a translation
+                $.getJSON(requestUrl, {textToTranslate: title, fromLang: lang, toLang: targetLang.toUpperCase()}, function(response){
+                    var reqId = response.value;
+                    if (!reqId){
+                        numOfTranslations = numOfTranslations - 1;
+                        if (numOfTranslations == 0) {	//no translations to be made
+                            cancelTranslationWaitNimTab(country);
+                        }
+                        displayTranslationErrorNimTab(rows, i , country, "", "");
+                    } else {
+                        getTranslationNimTab(rows, i, reqId, translationUrl, translationRetryTime, country, function(){
+                            numOfTranslations = numOfTranslations - 1;
+                            if (numOfTranslations == 0) {	//no translations to be made
+                                cancelTranslationWaitNimTab(country);
+                            }
+                        });
+                    }
+                });}, 500);
+        } else {
+            numOfTranslations = numOfTranslations - 1;
+            if (numOfTranslations == 0) {	//no translations to be made
+                cancelTranslationWaitNimTab(country);
+            }
+        }
+    }(i));
+}
+
+//NIM tab (e.g. /legal-content/EN/NIM/?uri=CELEX:32008L0114) cancels the Translation proccess in GUI.
+function cancelTranslationWaitNimTab(country){	
+	$("#" + country + "_MT_button").button('reset');
+    $("#" + country + "_MT_languageSelect").attr("disabled", false);
+}
+
+//NIM tab (e.g. /legal-content/EN/NIM/?uri=CELEX:32008L0114) Displays translation fail message
+function displayTranslationErrorNimTab(rows, index , country, error, errorMsg){
+
+    var errorSanitazed = sanitizeHtml(error);
+    var errorMsgSanitazed = sanitizeHtml(errorMsg);
+    var countrySanitazed = sanitizeHtml(country);
+
+    var inputLang = $(rows[index]).find("#language").html();
+    inputLang = sanitizeHtml(inputLang.toUpperCase());
+
+    $(rows[index]).find("#" + countrySanitazed + "_" + inputLang + "_errCode").html(errorSanitazed);
+    $(rows[index]).find("#" + countrySanitazed + "_" + inputLang + "_errMsg").html(errorMsgSanitazed);
+    if( $(rows[index]).find("#" + countrySanitazed + "_" + inputLang + "_errorMessage").hasClass('hidden') );
+    {
+        $(rows[index]).find("#" + countrySanitazed + "_" + inputLang + "_errorMessage").removeClass('hidden');
+    }
+}
+
+//NIM tab (e.g. /legal-content/EN/NIM/?uri=CELEX:32008L0114) sends a new request periodically until you get a translation for the title.
+function getTranslationNimTab(tableRows, index, reqId, translationUrl, translationRetryTime, country, callback){
+
+    var translationUrlSanitazed = sanitizeHtml(translationUrl);
+    var reqIdSanitazed =sanitizeHtml(reqId);
+
+    var atLeastOneTranslation = false;
+    var refreshIntervalId = setInterval(function(){
+        var myJSONTimeout;
+        clearTimeout(myJSONTimeout);
+        myJSONTimeout = window.setTimeout(function(){
+            $.getJSON(translationUrl, {requestId: reqId}, function(response){
+                var translation = sanitizeHtml(response.value);
+                var	error = response.errorCode;
+                var errorMsg = response.errorMessage;
+                if (translation){
+                    callback();
+                    clearInterval(refreshIntervalId);
+                    $(tableRows[index]).find("#translationPlaceholder").html(translation);
+                    $(tableRows[index]).find("#translationPlaceholderWrapper").removeClass("hidden");
+                    atLeastOneTranslation = true;
+                } else if(error || errorMsg) {
+                    callback();
+                    clearInterval(refreshIntervalId);
+
+                    //Display the corresponding error message
+                    displayTranslationErrorNimTab(tableRows, index, country, error, errorMsg);
+                }
+
+                if ( atLeastOneTranslation ){	//At least 1 translation was made
+                    //Display translation message
+                    toggleTranslationMessage(country);
+                }
+            });}, 500);
+    }, translationRetryTime);
+}
+
+//NIM tab (e.g. /legal-content/EN/NIM/?uri=CELEX:32008L0114) displays the appropriate message after translation
+function toggleTranslationMessage(country){
+	var mtFromTo = $("#" + country + "_MT_fromTo").text();
+	var inputLanguages = mtFromTo.substring(mtFromTo.indexOf(" ") + 1, mtFromTo.lastIndexOf(" "));
+    $("#" + country + "_MT_msgInput").html(inputLanguages);
+    var targetLang = $("#" + country + "_MT_languageSelect option:selected").text();
+
+    $("#" + country + "_MT_msgOutput").html(targetLang);
+    if( $("#" + country + "_MT_message").hasClass('hidden')) {
+        $("#" + country + "_MT_message").removeClass('hidden');
+    }
+}
+
+//Specific Ntm page (e.g. /legal-content/EN/TXT/?uri=NIM%3A181500): Translates the titles of the NTM using machine translation asynchronously
+function sendTitleTranslation(lang, url, translationRetryTime){
+	//target language from dropdown & original text
+	var targetLang = $("#title_MT_languageSelect option:selected" ).val();
+    var title = $("#originalTitle").text();
+
+	$("#title_MT_button").button('loading');
+    $("#title_MT_languageSelect").attr("disabled", true);
+    if(! $("#title_MT_errorMessage").hasClass('hidden')) {
+        $("#title_MT_errorMessage").addClass('hidden');
+    }
+
+    var requestUrl = url+ "mtatec/sendTranslation";
+    var translationUrl = url + "mtatec/getTranslation";
+
+    if(lang.toUpperCase() != targetLang.toUpperCase()){ //target language must differ from input language
+        var myJSONTimeout;
+        clearTimeout(myJSONTimeout);
+        myJSONTimeout = window.setTimeout(function(){	//send request to apply for a translation
+            $.getJSON(requestUrl, {textToTranslate: title, fromLang: lang.toUpperCase(), toLang: targetLang.toUpperCase()}, function(response){
+                var reqId = response.value;
+                if (!reqId){
+                    cancelTranslationWait("title");
+                    displayTranslationError("title", "", "")
+                } else {
+                    getTranslation(title, reqId, translationUrl, translationRetryTime);
+                }
+            });}, 500);
+    } else {	//no translation to be made
+        cancelTranslationWait("title");
+    }
+}
+
+//Specific Ntm page (e.g. /legal-content/EN/TXT/?uri=NIM%3A181500): cancels the Translation proccess in GUI.
+function cancelTranslationWait(prefix){
+	$("#"+prefix+"_MT_button").button('reset');
+    $("#"+prefix+"_MT_languageSelect").attr("disabled", false);
+}
+
+//Specific Ntm page (e.g. /legal-content/EN/TXT/?uri=NIM%3A181500): Display the corresponding error message
+function displayTranslationError(prefix, error, errorMsg){
+    var prefixSanitazed = sanitizeHtml(prefix)
+    var errorSanitized = sanitizeHtml(error);
+    var errorMsgSanitized = sanitizeHtml(errorMsg);
+
+    $("#"+prefixSanitazed+"_MT_errCode").html(errorSanitized);
+    $("#"+prefixSanitazed+"_MT_errMsg").html(errorMsgSanitized);
+    if($("#"+prefixSanitazed+"_MT_errorMessage").hasClass('hidden')) {
+        $("#"+prefixSanitazed+"_MT_errorMessage").removeClass('hidden');
+    }
+}
+
+//method for displaying unexpected error message
+function displayUnexpectedError(prefix){
+    if($("#"+prefix+"_MT_unexpectedErrorMessage").hasClass('hidden')) {
+        $("#"+prefix+"_MT_unexpectedErrorMessage").removeClass('hidden');
+    }
+}
+
+//Specific Ntm page (e.g. /legal-content/EN/TXT/?uri=NIM%3A181500): sends a new request periodically until you get a translation for the title.
+function getTranslation(textToTranslate, reqId, translationUrl, translationRetryTime){
+
+    var translationUrlSanitazed = sanitizeHtml(translationUrl);
+    var reqIdSanitazed = sanitizeHtml(reqId);
+    var refreshIntervalId = setInterval(function(){
+        var myJSONTimeout;
+        clearTimeout(myJSONTimeout);
+        myJSONTimeout = window.setTimeout(function(){
+            $.getJSON(translationUrlSanitazed, {requestId: reqIdSanitazed}, function(response){
+                var translation = sanitizeHtml(response.value);
+                var	error = response.errorCode;
+                var errorMsg = response.errorMessage;
+                if (translation || error || errorMsg) {	//response is a translation or error
+                    cancelTranslationWait("title");
+                }
+                if (translation){
+                    clearInterval(refreshIntervalId);	//stop sending requests
+                    $("#translatedTitle").html(translation);	//replace the translated text
+                    $("#translatedTitle").removeClass("hidden"); // make the translated title visible
+                    	
+                    //Display message
+					var mtFromTo = $("#title_MT_fromTo").text();
+					var inputLang = mtFromTo.substring(mtFromTo.indexOf(" ") + 1, mtFromTo.lastIndexOf(" "));
+                    $("#title_MT_msgInput").html(inputLang);
+                    var targetLang = $("#title_MT_languageSelect option:selected").text();
+                    $("#title_MT_msgOutput").html(targetLang);
+					
+					if($("#title_MT_message").hasClass('hidden')){
+						$("#title_MT_message").removeClass('hidden');
+					}
+                } else if(error || errorMsg){
+                    clearInterval(refreshIntervalId);
+                    displayTranslationError("title", error, errorMsg);
+                }
+            });}, 500);
+    }, translationRetryTime);
+}
+
+//EURLEXNEW-4134: handles manifestation translation in JURE notice pages (e.g. /legal-content/EN/TXT/?uri=CELEX:82014DK1114(51))
+function sendFileTranslation(urn, isNatCourtDec, url, translationRetryTime){
+
+    var urnSanitized = sanitizeHtml(urn);
+    var urlSanitized = sanitizeHtml(url);
+
+	isNatCourtDec = isNatCourtDec == "true" ? true : false;
+	//target language from dropdown & original language
+	var targetLang = $("#doc_MT_languageSelect option:selected" ).val();
+	var srcLang = isNatCourtDec ? $("#doc_decNcSrcLang").html() : $("#doc_MT_srcLanguageSelect option:selected" ).val();
+	var format = isNatCourtDec ? "PDF" : "HTML";
+
+	$("#doc_MT_button").button('loading');
+    $("#doc_MT_languageSelect").attr("disabled", true);
+    if(! $("#doc_MT_errorMessage").hasClass('hidden')) {
+        $("#doc_MT_errorMessage").addClass('hidden');
+    }
+
+    var requestUrl = urlSanitized + "mtatec/sendFileTranslation";
+    var translationUrl = urlSanitized + "mtatec/getFileTranslation";
+	var downloadUrl = urlSanitized + "mtatec/getTranslatedFile";
+
+	var myJSONTimeout;
+	clearTimeout(myJSONTimeout);
+	myJSONTimeout = window.setTimeout(function(){	//send request to apply for a translation
+		$.getJSON(requestUrl, {urn: urnSanitized, format: format, fromLang: srcLang.toUpperCase(), toLang: targetLang.toUpperCase()}, function(response){
+			var reqId = response.value;
+			var	error = response.errorCode;
+            var errorMsg = response.errorMessage;
+			if (!reqId){
+				cancelTranslationWait("doc");
+				displayTranslationError("doc", error, errorMsg);
+			} else {
+				getFileTranslation(reqId, translationUrl, downloadUrl, translationRetryTime, "doc", format);
+			}
+			console.log(reqId);
+			console.log(response);
+		}).fail(function() {
+			cancelTranslationWait("doc");
+			displayUnexpectedError("doc");
+		});
+	}, 500);
+}
+
+//EURLEXNEW-4134: handles national website translation in NTM page (e.g. /legal-content/EN/TXT/?uri=CELEX%3A72015L1480AUT_202102563&qid=1619097523077)
+function sendNationalWebsiteTranslation(lang, internalUrl, nationalWebsiteUrl, translationRetryTime){
+    //target language from dropdown & original text
+    var targetLang = $("#link_MT_languageSelect option:selected" ).val();
+
+    $("#link_MT_button").button('loading');
+    $("#link_MT_languageSelect").attr("disabled", true);
+    if(! $("#link_MT_errorMessage").hasClass('hidden')) {
+         $("#link_MT_errorMessage").addClass('hidden');
+    }
+
+    var requestUrl = internalUrl + "mtatec/sendHTMLTranslation";
+    var translationUrl = internalUrl + "mtatec/getFileTranslation";
+    var downloadUrl = internalUrl + "mtatec/getTranslatedFile";
+
+	var myJSONTimeout;
+    	clearTimeout(myJSONTimeout);
+    	myJSONTimeout = window.setTimeout(function(){	//send request to apply for a translation
+    		$.getJSON(requestUrl, {url: nationalWebsiteUrl, fromLang: lang.toUpperCase(), toLang: targetLang.toUpperCase()}, function(response){
+    			var reqId = response.value;
+    			if (!reqId){
+    				cancelTranslationWait("link");
+    				displayUnexpectedError("link");
+    			} else {
+    				getFileTranslation(reqId, translationUrl, downloadUrl, translationRetryTime, "link", "html");
+    			}
+    			console.log(reqId);
+    			console.log(response);
+    		}).fail(function() {
+    			cancelTranslationWait("link");
+    			displayUnexpectedError("link");
+    		});
+    	}, 500);
+
+}
+
+//EURLEXNEW-4134: handles manifestation translation in JURE notice pages (e.g. /legal-content/EN/TXT/?uri=CELEX:82014DK1114(51))
+function getFileTranslation(reqId, translationUrl, downloadUrl, translationRetryTime, prefix, format){
+    var reqIdSanitazed = sanitizeHtml(reqId);
+    var translationUrlSanitazed = sanitizeHtml(translationUrl);
+    var downloadUrlSanitized = sanitizeHtml(downloadUrl);
+    var prefixSanitized = sanitizeHtml(prefix);
+
+    var refreshIntervalId = setInterval(function(){
+        var myJSONTimeout;
+        clearTimeout(myJSONTimeout);
+        myJSONTimeout = window.setTimeout(function(){
+            $.getJSON(translationUrlSanitazed, {requestId: reqIdSanitazed}, function(response){
+                var downloadBtnLabel = $("#"+prefixSanitized+"_MT_DownloadFileLabel").html()
+                var identifier = sanitizeHtml(response.value);
+                var	error = response.errorCode;
+                var errorMsg = response.errorMessage;
+                if (identifier || error || errorMsg) {	//response is a translation or error
+                    cancelTranslationWait(prefix);
+                }
+                if (identifier){
+                    clearInterval(refreshIntervalId);	//stop sending requests
+					//render download link
+					iconClass = format.toUpperCase() == "HTML" ? "exi exi-html" : "exi exi-pdf";
+					$("#"+prefixSanitized+"_MT_message").html("");
+					$("#"+prefixSanitized+"_MT_message").html("<a target='_blank' style='display:inherit; padding-top:10px;' onclick='removeFileLink(this)' href='" + downloadUrlSanitized + "?requestId=" + identifier + "'>" + downloadBtnLabel + " <i class='" + iconClass + "' aria-hidden='true'></i></a>");
+
+					if($("#"+prefixSanitized+"_MT_message").hasClass('hidden')){
+						$("#"+prefixSanitized+"_MT_message").removeClass('hidden');
+					}
+                } else if(error || errorMsg){
+                    clearInterval(refreshIntervalId);
+                    displayTranslationError(prefix, error, errorMsg);
+                }
+            });
+		}, 500);
+    }, translationRetryTime);
+}
+
+function removeFileLink(el) {
+  var element = el;
+  element.remove();
+}

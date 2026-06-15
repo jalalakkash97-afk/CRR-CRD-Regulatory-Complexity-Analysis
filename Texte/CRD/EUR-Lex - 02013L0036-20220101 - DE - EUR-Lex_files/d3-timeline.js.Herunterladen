@@ -1,0 +1,346 @@
+//General settings
+const d3Timeline = {
+  width: $('#d3-timeline').width(),
+  height: 180,
+  marginRight: 45,
+  marginLeft: 25,
+  breaklineWidth: 80,
+  yTopLabel: 30,
+  yMainAxis: 60,
+  yLabelAxis: 110,
+  yTimeScalesAxis: 180,
+  hasTimeScalesAxis: false,
+  color: "#087FAA",
+  selectedColor: "#FFD617",
+  currentColor: "#74cc0a",
+  futurColor: '#84bfd5',
+  labelColor: "#337ab7"
+};
+
+//svg selector
+const d3TimelineWrapper = d3.select("#d3-timeline")
+  .append("svg")
+  .attr("viewBox", `0 0 ${d3Timeline.width} ${d3Timeline.height}`);
+
+//Global variable for locale used in timeline document links.
+//Default value is EN.
+let locale = "EN"
+
+//Method for initiating timeline
+function initTimeline(data) {
+
+  if (data) {
+    //set locale
+    if (data.locale && data.locale !== ""){
+        locale = data.locale.toUpperCase();
+    }
+    //compute Wr
+    const widthRange = d3Timeline.width - (data.totalBreakline * d3Timeline.breaklineWidth) - (d3Timeline.marginRight + d3Timeline.marginLeft);
+
+    //compute ratio
+    const ratio = widthRange / data.totalDays;
+
+    //get acts within Range --> Wr
+    const acts = transformItems(data.data, ratio);
+
+    //draw main axis
+    drawMainAxis();
+
+    //add items to main axis
+    let items = addActsToMainAxis(acts);
+
+    //loop each items
+    items.each(function(item) {
+      let elem = d3.select(this);
+
+      if (item.duration > 0 && item.selected) {
+        drawSelectedLine(elem, item.start, item.end);
+      }
+
+      if (item.type === 'basic-act') {
+        drawBasicAct(elem, item.start, item.celex);
+        addTooltip(elem, item.celex);
+      }
+
+      if (item.type === 'legal-act') {
+        drawMapMarker(elem, {
+          x: item.start,
+          y: d3Timeline.yMainAxis,
+          r: 15,
+          outerColor: item.selected ? d3Timeline.selectedColor : 'white'
+        });
+        drawMapMarker(elem, {
+          x: item.start,
+          y: d3Timeline.yMainAxis,
+          hoverEnable: true,
+          outerColor: item.future ? d3Timeline.futurColor : d3Timeline.color,
+          innerColor: item.current ? d3Timeline.currentColor : 'white',
+          celex: item.celex
+        });
+
+        drawLabel(elem, item.start, item.label);
+        addTooltip(elem, item.celex);
+      }
+
+      if (item.type === 'breakline') {
+        drawBreakline(elem, item.middle + 4);
+        drawBreakline(elem, item.middle - 4);
+      }
+
+      if (item.type === 'today') {
+        drawToday(item.start, d3Timeline.yMainAxis, item);
+      }
+
+    });
+  }
+}
+
+//Method for adding items to axis
+function addActsToMainAxis(items) {
+  return d3TimelineWrapper.selectAll('g.item')
+    .data(items)
+    .enter()
+    .append('g')
+    .attr('class', 'item');
+}
+
+//Method for computing the coordinates of each item with static size breakline
+function transformItems(items, ratio) {
+  //init temp data
+  let tempData = [];
+
+  //get basic act
+  let basicAct = transformItem(items, 0);
+
+  //set start/end/middle coordinates for basicAct
+  basicAct.start = d3Timeline.marginLeft;
+  basicAct.end = basicAct.start + (basicAct.duration * ratio);
+  basicAct.middle = (basicAct.start + basicAct.end) / 2;
+
+  //add basic act to temp data
+  tempData.push(basicAct);
+
+  //start looping at index 1
+  for (let i = 1; i < items.length; i++) {
+    let item = transformItem(items, i);
+
+    //set start/end/middle coordinates for item
+    item.start = tempData[i - 1].end;
+
+    if (item.type === 'breakline') {
+    	item.end = item.start + d3Timeline.breaklineWidth;
+    } else {
+      item.end = item.start + (item.duration * ratio);
+    }
+
+    item.middle = (item.start + item.end) / 2;
+
+    tempData.push(item);
+  }
+
+  return tempData;
+}
+
+//Method for getting item
+function transformItem(data, idx) {
+
+  let item = data[idx];
+  return {
+    celex: item.celex,
+    label: item.label,
+    type: item.type,
+    duration: item.duration,
+    selected: item.selected,
+    future: item.future,
+    current: item.current
+  };
+}
+
+//Helper method for drawing main axis
+function drawMainAxis() {
+  d3TimelineWrapper.append("line")
+    .style("stroke", d3Timeline.color)
+    .style("stroke-width", 12)
+    .attr("x1", d3Timeline.marginLeft)
+    .attr("y1", d3Timeline.yMainAxis)
+    .attr("x2", d3Timeline.width - d3Timeline.marginRight)
+    .attr("y2", d3Timeline.yMainAxis);
+}
+
+//Helper method for drawing period line
+function drawSelectedLine(element, x1, x2) {
+
+  element.append("line")
+    .style("stroke", d3Timeline.selectedColor)
+    .style("stroke-width", 4)
+    .attr("x1", x1)
+    .attr("y1", d3Timeline.yMainAxis)
+    .attr("x2", x2)
+    .attr("y2", d3Timeline.yMainAxis);
+}
+
+//Helper method for drawing basic act
+function drawBasicAct(element, x, celex) {
+
+	let groupingElement = element.append("g")
+  	    .attr("class","d3-basic-act")
+        .on("mouseover", function(d){
+    	    d3.select(this).select('.d3-basic-act-rect').attr("fill", 'grey');
+        })
+        .on("mouseout", function(d){
+    	    d3.select(this).select('.d3-basic-act-rect').attr("fill", d3Timeline.color);
+        });
+
+    groupingElement.append("rect")
+        .attr("class","d3-basic-act-rect")
+        .attr("width", 30)
+        .attr("height", 30)
+        .attr("fill", d3Timeline.color)
+        .attr("stroke", 'white')
+        .attr("stroke-width", 3)
+        .attr("rx", 6)
+        .attr("ry", 6)
+        .attr('x', x)
+        .attr('y', d3Timeline.yMainAxis - 14);
+
+    groupingElement.append("circle")
+        .attr("r", 5)
+        .attr("fill", 'white')
+        .attr("cx", x + 15)
+        .attr("cy", d3Timeline.yMainAxis);
+
+    if(celex){
+        groupingElement.on('click', e => goToDocumentVersion(e, celex));
+    }
+}
+
+//Helper method for drawing map marker
+function drawMapMarker(element, params) {
+
+  const x = params.x + 15;
+  const y = params.y;
+  const r = params.r || 12;
+  const outerColor = params.outerColor || d3Timeline.color;
+  const innerColor = params.innerColor || "#fff";
+
+  let outerElement = element.append("g")
+    .attr("class", "d3-map-marker");
+
+  if(params.celex){
+  	outerElement.on('click', e => goToDocumentVersion(e, params.celex));
+  }
+
+  let circleElement = outerElement.append("circle")
+    .attr("class", "d3-map-marker-circle")
+    .attr("r", r)
+    .attr("fill", outerColor)
+    .attr("cx", x)
+    .attr("cy", y);
+
+  let path = d3.path();
+  path.moveTo(x - r, y + (r / 5));
+  path.lineTo(x, y + (r * 2));
+  path.lineTo(x + r, y + (r / 5));
+  path.closePath();
+
+  let pathElement = outerElement.append("path")
+    .attr("class", "d3-map-marker-path")
+    .attr("d", path)
+    .attr("fill", outerColor);
+
+  let innerCircleElement = outerElement.append("circle")
+    .attr("class", "d3-map-marker-inner-circle")
+    .attr("r", r / 2.5)
+    .attr("fill", innerColor)
+    .attr("cx", x)
+    .attr("cy", y);
+
+  if (params.hoverEnable) {
+    applyHoverOnElement(outerElement, outerColor);
+  }
+
+}
+
+//Helper method for applying hover on map marker
+function applyHoverOnElement(element, initialColor) {
+
+  element.on("mouseover", function(d) {
+    d3.select(this).select('.d3-map-marker-circle').attr("fill", 'grey');
+    d3.select(this).select('.d3-map-marker-path').attr("fill", 'grey');
+  })
+  element.on("mouseout", function(d) {
+    d3.select(this).select('.d3-map-marker-circle').attr("fill", initialColor);
+    d3.select(this).select('.d3-map-marker-path').attr("fill", initialColor);
+  });
+}
+
+//Helper method for drawing today markup
+function drawToday(x, y, item) {
+  d3TimelineWrapper.append("rect")
+    .attr("width", 4)
+    .attr("height", 24)
+    .attr("fill", d3Timeline.color)
+    .attr("stroke", "white")
+    .attr("stroke-width", 2)
+    .attr('x', x)
+    .attr('y', y - 14);
+
+  d3TimelineWrapper.append('text')
+    .attr('x', x - 14)
+    .attr('y', d3Timeline.yTopLabel)
+    .attr('stroke', d3Timeline.labelColor)
+    .style("font-size", 12)
+    .text(item.label);
+}
+
+//Helper method for drawing label
+function drawLabel(element, x, label) {
+
+  const x1 = x - 45;
+  const y1 = d3Timeline.yLabelAxis + 35;
+
+  element.append('text')
+    .attr('class', 'd3-timeline-label')
+    .attr('stroke', d3Timeline.labelColor)
+    .attr("transform", `translate(${x1},${y1}) rotate(320)`)
+    .style("font-size", 12)
+    .style("font-weight", 300)
+    .text(label);
+}
+
+//Helper method for accessing document with the provided celex number
+function goToDocumentVersion(event, celex) {
+  const relativeUrl = $('#d3-timeline').attr('data-relative-url');
+
+  window.open(`${relativeUrl}legal-content/${locale}/ALL/?uri=CELEX:${celex}`, '_self');
+}
+
+//Helper method for drawing breakline
+function drawBreakline(element, x) {
+
+  const y = d3Timeline.yMainAxis - 15;
+
+  let path = d3.path();
+  path.moveTo(x, y);
+  path.lineTo(x + 5, y);
+  path.lineTo(x + 24, y + 15);
+  path.lineTo(x + 5, y + 30);
+  path.lineTo(x, y + 30);
+  path.lineTo(x + 20, y + 15);
+  path.closePath();
+
+  element.append("path")
+    .attr("d", path)
+    .attr("fill", 'white');
+}
+
+//Helper method for adding tooltip
+function addTooltip(element, celex) {
+  element.append('title')
+    .text(celex);
+}
+
+//Method for opening timeline legend
+function openTimelineLegend(){
+    $('#d3TimelineLegend').modal();
+}
