@@ -56,7 +56,7 @@ def artikelteil_ohne_rechtsaktnummern(fragment):
         fragment = fragment[:match.start()]
 
     # Stoppt vor einem spaeteren Singularverweis, damit Einzelverweise getrennt bleiben.
-    follow_up_match = re.search(r"\bArticles?\s+\d+", fragment[len("Articles"):], re.IGNORECASE)
+    follow_up_match = re.search(r"\bArticles?\s+\d+[a-z]?", fragment[len("Articles"):], re.IGNORECASE)
     if follow_up_match is not None:
         fragment = fragment[:len("Articles") + follow_up_match.start()]
 
@@ -68,7 +68,7 @@ def relevanter_mehrfachverweis_text(fragment):
 
     # Stoppt vor einem spaeteren Singularverweis, damit dessen Rechtsaktangabe
     # nicht faelschlich auf den vorherigen Mehrfachverweis uebertragen wird.
-    follow_up_match = re.search(r"\bArticles?\s+\d+", fragment[len("Articles"):], re.IGNORECASE)
+    follow_up_match = re.search(r"\bArticles?\s+\d+[a-z]?", fragment[len("Articles"):], re.IGNORECASE)
     if follow_up_match is not None:
         fragment = fragment[:len("Articles") + follow_up_match.start()]
 
@@ -82,19 +82,19 @@ def extrahiere_artikelnummern(fragment, ParagraphList):
     fragment = artikelteil_ohne_rechtsaktnummern(fragment)
 
     # Erkennt Bereichsverweise wie "Articles 32 to 35".
-    for match in re.finditer(r"\b(\d+)(?:\([^)]+\))*\s+to\s*(\d+)(?:\([^)]+\))*", fragment):
-        verweise += baue_bereich(match.group(1), match.group(2), ParagraphList)
+    for match in re.finditer(r"\b(\d+[a-z]?)(?:\([^)]+\))*\s+to\s*(\d+[a-z]?)(?:\([^)]+\))*", fragment, re.IGNORECASE):
+        verweise += baue_bereich(match.group(1).lower(), match.group(2).lower(), ParagraphList)
 
     # Erkennt Bereichsverweise wie "Articles 32 through 35".
-    for match in re.finditer(r"\b(\d+)(?:\([^)]+\))*\s+through\s*(\d+)(?:\([^)]+\))*", fragment):
-        verweise += baue_bereich(match.group(1), match.group(2), ParagraphList)
+    for match in re.finditer(r"\b(\d+[a-z]?)(?:\([^)]+\))*\s+through\s*(\d+[a-z]?)(?:\([^)]+\))*", fragment, re.IGNORECASE):
+        verweise += baue_bereich(match.group(1).lower(), match.group(2).lower(), ParagraphList)
 
     # Entfernt bereits behandelte Bereichsverweise, damit die Grenzen nicht doppelt gezaehlt werden.
-    fragment_ohne_bereiche = re.sub(r"\b\d+(?:\([^)]+\))*\s+(?:to|through)\s*\d+(?:\([^)]+\))*", " ", fragment)
+    fragment_ohne_bereiche = re.sub(r"\b\d+[a-z]?(?:\([^)]+\))*\s+(?:to|through)\s*\d+[a-z]?(?:\([^)]+\))*", " ", fragment, flags=re.IGNORECASE)
 
     # Erkennt einzelne Zahlen in Aufzaehlungen wie "Articles 89, 90 and 91".
-    for match in re.finditer(r"(?<!\()\b\d+(?:\([^)]+\))*", fragment_ohne_bereiche):
-        verweise.append(match.group(0).split("(")[0])
+    for match in re.finditer(r"(?<!\()\b\d+[a-z]?(?:\([^)]+\))*", fragment_ohne_bereiche, re.IGNORECASE):
+        verweise.append(match.group(0).split("(")[0].lower())
 
     return eindeutige_liste(verweise)
 

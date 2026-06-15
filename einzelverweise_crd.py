@@ -188,15 +188,16 @@ def einzelverweise_crd(ParagraphSign, parabegin, paraend, CFR_Text, ParagraphLis
     CRREinzelverweise = []
 
     # Baut ein Suchmuster fuer einfache Artikelverweise.
-    # Beispiel: ParagraphSign = "Article" erkennt "Article 30" und "Article 30(2)".
+    # Beispiel: ParagraphSign = "Article" erkennt "Article 30", "Article 30a"
+    # und Untergliederungen wie "Article 30a(2)".
     # "\b" Wortgrenze: sorgt dafür, dass Artikel als einzelwort erkannt wird und nicht mitten im Wort iwo 
     # re.escape sorgt dafür,dass Sondernzeichen als Sonderzeichen erkannt werden im Regex und nicht anders interpritiert( für Artokel ist es überflüssig) 
     #\S+ ein oder mehrere Leezeichen nach dem Wortartikel oder andere zwischen räume
-    #\d+  bedeutet eine Ziffer oder mehrere Ziffern () speichern dann diese Ziffer ist wichtig für die Artikel nummer
+    # \d+[a-zA-Z]? erfasst die Zahl und einen optionalen Buchstaben der Artikelnummer.
     #(?:\([^)]+\)) erlaube danch die Klammerangaben aber speicht die nihct als eignes ergebnis
     # ?:  bedeutet gruppe nicht speichern.
     # * null mal einmal oder mehrmal
-    pattern = r"\b" + re.escape(ParagraphSign) + r"\s+(\d+)(?:\([^)]+\))*"
+    pattern = r"\b" + re.escape(ParagraphSign) + r"\s+(\d+[a-zA-Z]?)(?:\([^)]+\))*"
 
     # Sucht alle Treffer des Musters im aktuellen Artikelbereich.
     # Für jeden Treffer, den Regex im Text findet, nenne diesen Treffer kurz MATCH und führe den eingerückten Code aus.
@@ -206,7 +207,7 @@ def einzelverweise_crd(ParagraphSign, parabegin, paraend, CFR_Text, ParagraphLis
     for match in re.finditer(pattern, CFR_Text[parabegin:paraend]):
 
         # Holt die gefundene Artikelnummer aus der ersten Klammer des Suchmusters.
-        verweis = match.group(1)
+        verweis = match.group(1).lower()
 
         # Rechnet die relative Trefferposition im Artikelausschnitt in die absolute Textposition um.
         match_start = parabegin + match.start()

@@ -95,16 +95,32 @@ for year in range(2013, 2014):
         # - optional bis zu drei Leerzeichen,
         # - das Wort "Article",
         # - mindestens ein Leerzeichen,
-        # - eine oder mehrere Ziffern als Artikelnummer,
+        # - eine oder mehrere Ziffern und optional einen Buchstaben als Artikelnummer,
         # - und danach wieder einen Zeilenumbruch.
-        pattern = r"\n[ ]{0,3}Article\s+(\d+)\n"
-        # Sucht alle passenden Artikelueberschriften im uebergebenen Text.
-        matches = list(re.finditer(pattern, text))
+        # Dadurch bleiben Article 10 und Article 10a zwei getrennte Artikel.
+        # Klammerangaben wie Article 10(1)(a) sind keine Ueberschriften und werden hier nicht erfasst.
+        pattern = r"\n[ ]{0,3}Article\s+(\d+[a-zA-Z]?)\n"
+
+        # Anhaenge koennen Tabellen mit erneut ausgeschriebenen Artikelnummern enthalten.
+        # Fuer die Artikelerkennung wird der Text deshalb am ersten echten Anhang nach
+        # dem Beginn des Rechtstextes abgeschnitten.
+        erster_artikel = re.search(pattern, text)
+        analyseende = len(text)
+        if erster_artikel is not None:
+            anhang = re.search(
+                r"\n[ ]{0,3}ANNEX(?:\s+I)?\s*\n",
+                text[erster_artikel.start():],
+            )
+            if anhang is not None:
+                analyseende = erster_artikel.start() + anhang.start()
+
+        # Sucht alle passenden Artikelueberschriften nur im eigentlichen Rechtstext.
+        matches = list(re.finditer(pattern, text[:analyseende]))
 
         # Geht alle gefundenen Artikelueberschriften nacheinander durch.
         for i in range(len(matches)):
             # Speichert die Artikelnummer des aktuellen Treffers.
-            artikel_liste.append(matches[i].group(1))    # Gruppe 1 ist der Inhalt der ersten Kammer im Pattern 
+            artikel_liste.append(matches[i].group(1).lower())    # Gruppe 1 ist die vollstaendige Artikelnummer.
             # Speichert die Startposition des aktuellen Artikels.
             artikelfang = matches[i].start()
 
@@ -112,11 +128,11 @@ for year in range(2013, 2014):
             if i < len(matches) - 1:
                 artikelende = matches[i + 1].start()
             else:
-                # Letzten Artikel vor Anhängen oder Schlussformeln begrenzen.
+                # Letzten Artikel vor Anhaengen oder Schlussformeln begrenzen.
                 # Diese Marker liegen typischerweise nach dem eigentlichen Rechtstext.
                 possible_ends = []
                 # Prueft mehrere moegliche Endmarker, damit die Logik sowohl bei CRD als auch bei CRR robust bleibt.
-                for marker in ["\nANNEX I", "\nANNEX", "\nDone at Brussels"]:
+                for marker in ["\nDone at Brussels"]:
                     # Sucht den Marker erst ab dem Beginn des letzten Artikels.
                     pos = text.find(marker, artikelfang)
                     # Nur Treffer hinter dem Artikelanfang sind als Artikelende relevant.
@@ -129,7 +145,7 @@ for year in range(2013, 2014):
                     artikelende = min(possible_ends)
                 else:
                     # Falls kein Endmarker gefunden wird, laeuft der letzte Artikel bis zum Textende.
-                    artikelende = len(text)
+                    artikelende = analyseende
 
             # Fuegt die Startposition des aktuellen Artikels der Positionsliste hinzu.
             positions.append(artikelfang)
