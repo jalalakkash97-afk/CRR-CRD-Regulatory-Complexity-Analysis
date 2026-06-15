@@ -57,7 +57,7 @@ def artikelteil_ohne_rechtsaktnummern(fragment):
 
     # Stoppt vor einem spaeteren Singularverweis, z.B.:
     # Articles 283 and 363, and ... Article 259(3)
-    follow_up_match = re.search(r"\bArticles?\s+\d+[a-z]?", fragment[len("Articles"):], re.IGNORECASE)
+    follow_up_match = re.search(r"\bArticles?\s+\d+[a-z]*", fragment[len("Articles"):], re.IGNORECASE)
     if follow_up_match is not None:
         fragment = fragment[:len("Articles") + follow_up_match.start()]
 
@@ -78,7 +78,7 @@ def relevanter_mehrfachverweis_text(fragment):
     # Articles 10 and 12 and Article 13(1) ...
     # Wichtig: "of Regulation ..." wird hier noch NICHT abgeschnitten,
     # weil der Rechtsakt fuer die Zielklassifikation gebraucht wird.
-    follow_up_match = re.search(r"\bArticles?\s+\d+[a-z]?", fragment[len("Articles"):], re.IGNORECASE)
+    follow_up_match = re.search(r"\bArticles?\s+\d+[a-z]*", fragment[len("Articles"):], re.IGNORECASE)
     if follow_up_match is not None:
         fragment = fragment[:len("Articles") + follow_up_match.start()]
 
@@ -92,18 +92,18 @@ def extrahiere_artikelnummern(fragment, ParagraphList):
     fragment = artikelteil_ohne_rechtsaktnummern(fragment)
 
     # Erkennt Bereichsverweise wie "Articles 10 to 14".
-    for match in re.finditer(r"\b(\d+[a-z]?)(?:\([^)]+\))*\s+to\s*(\d+[a-z]?)(?:\([^)]+\))*", fragment, re.IGNORECASE):
+    for match in re.finditer(r"\b(\d+[a-z]*)(?:\([^)]+\))*\s+to\s*(\d+[a-z]*)(?:\([^)]+\))*", fragment, re.IGNORECASE):
         verweise += baue_bereich(match.group(1).lower(), match.group(2).lower(), ParagraphList)
 
     # Erkennt Bereichsverweise wie "Articles 10 through 14".
-    for match in re.finditer(r"\b(\d+[a-z]?)(?:\([^)]+\))*\s+through\s*(\d+[a-z]?)(?:\([^)]+\))*", fragment, re.IGNORECASE):
+    for match in re.finditer(r"\b(\d+[a-z]*)(?:\([^)]+\))*\s+through\s*(\d+[a-z]*)(?:\([^)]+\))*", fragment, re.IGNORECASE):
         verweise += baue_bereich(match.group(1).lower(), match.group(2).lower(), ParagraphList)
 
     # Entfernt bereits behandelte Bereichsverweise, damit die Grenzen nicht doppelt gezaehlt werden.
-    fragment_ohne_bereiche = re.sub(r"\b\d+[a-z]?(?:\([^)]+\))*\s+(?:to|through)\s*\d+[a-z]?(?:\([^)]+\))*", " ", fragment, flags=re.IGNORECASE)
+    fragment_ohne_bereiche = re.sub(r"\b\d+[a-z]*(?:\([^)]+\))*\s+(?:to|through)\s*\d+[a-z]*(?:\([^)]+\))*", " ", fragment, flags=re.IGNORECASE)
 
     # Erkennt einzelne Zahlen in Aufzaehlungen wie "Articles 22, 25 and 26".
-    for match in re.finditer(r"(?<!\()\b\d+[a-z]?(?:\([^)]+\))*", fragment_ohne_bereiche, re.IGNORECASE):
+    for match in re.finditer(r"(?<!\()\b\d+[a-z]*(?:\([^)]+\))*", fragment_ohne_bereiche, re.IGNORECASE):
         verweise.append(match.group(0).split("(")[0].lower())
 
     return eindeutige_liste(verweise)
@@ -113,7 +113,10 @@ def ziel_ist_crr(fragment):
     """Prueft, ob der Mehrfachverweis auf Regulation (EU) No 575/2013 zeigt."""
 
     fragment_norm = normalisiere_kontext(fragment)
-    return "575/2013" in fragment_norm and "regulation" in fragment_norm
+    return bool(re.search(
+        r"\bof\s+(?:the\s+)?regulation\b.{0,100}\b575/2013\b",
+        fragment_norm,
+    ))
 
 
 def ziel_ist_extern(fragment):

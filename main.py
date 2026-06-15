@@ -99,7 +99,7 @@ for year in range(2013, 2014):
         # - und danach wieder einen Zeilenumbruch.
         # Dadurch bleiben Article 10 und Article 10a zwei getrennte Artikel.
         # Klammerangaben wie Article 10(1)(a) sind keine Ueberschriften und werden hier nicht erfasst.
-        pattern = r"\n[ ]{0,3}Article\s+(\d+[a-zA-Z]?)\n"
+        pattern = r"\n[ ]{0,3}Article[ \t\u00a0]+(\d+[a-zA-Z]*)[ \t\u00a0]*\n"
 
         # Anhaenge koennen Tabellen mit erneut ausgeschriebenen Artikelnummern enthalten.
         # Fuer die Artikelerkennung wird der Text deshalb am ersten echten Anhang nach

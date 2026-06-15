@@ -193,11 +193,11 @@ def einzelverweise_crd(ParagraphSign, parabegin, paraend, CFR_Text, ParagraphLis
     # "\b" Wortgrenze: sorgt dafür, dass Artikel als einzelwort erkannt wird und nicht mitten im Wort iwo 
     # re.escape sorgt dafür,dass Sondernzeichen als Sonderzeichen erkannt werden im Regex und nicht anders interpritiert( für Artokel ist es überflüssig) 
     #\S+ ein oder mehrere Leezeichen nach dem Wortartikel oder andere zwischen räume
-    # \d+[a-zA-Z]? erfasst die Zahl und einen optionalen Buchstaben der Artikelnummer.
+    # \d+[a-zA-Z]* erfasst die Zahl und alle nachfolgenden Buchstaben der Artikelnummer.
     #(?:\([^)]+\)) erlaube danch die Klammerangaben aber speicht die nihct als eignes ergebnis
     # ?:  bedeutet gruppe nicht speichern.
     # * null mal einmal oder mehrmal
-    pattern = r"\b" + re.escape(ParagraphSign) + r"\s+(\d+[a-zA-Z]?)(?:\([^)]+\))*"
+    pattern = r"\b" + re.escape(ParagraphSign) + r"\s+(\d+[a-zA-Z]*)(?:\([^)]+\))*"
 
     # Sucht alle Treffer des Musters im aktuellen Artikelbereich.
     # Für jeden Treffer, den Regex im Text findet, nenne diesen Treffer kurz MATCH und führe den eingerückten Code aus.

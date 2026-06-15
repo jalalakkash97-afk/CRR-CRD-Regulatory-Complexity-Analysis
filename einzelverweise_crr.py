@@ -151,7 +151,7 @@ def einzelverweise_crr(ParagraphSign, parabegin, paraend, CFR_Text, ParagraphLis
     # Baut ein Suchmuster fuer einfache Artikelverweise.
     # Beispiel: ParagraphSign = "Article" erkennt "Article 30", "Article 30a"
     # und Untergliederungen wie "Article 30a(2)".
-    pattern = r"\b" + re.escape(ParagraphSign) + r"\s+(\d+[a-zA-Z]?)(?:\([^)]+\))*"
+    pattern = r"\b" + re.escape(ParagraphSign) + r"\s+(\d+[a-zA-Z]*)(?:\([^)]+\))*"
 
     # Sucht alle Treffer des Musters im aktuellen Artikelbereich.
     for match in re.finditer(pattern, CFR_Text[parabegin:paraend]):
